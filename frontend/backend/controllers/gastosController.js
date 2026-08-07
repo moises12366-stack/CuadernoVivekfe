@@ -3,6 +3,7 @@ const db = require("../database");
 
 function guardarGasto(req, res) {
 
+console.log("DATOS RECIBIDOS GASTO:", req.body);
 
     const { descripcion, valor } = req.body;
 
