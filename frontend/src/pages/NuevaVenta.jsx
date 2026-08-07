@@ -24,7 +24,7 @@ export default function NuevaVenta() {
 
     try {
 
-      const respuesta = await fetch("http://localhost:3001/ventas", {
+      const respuesta = await fetch("https://vivekfe-backend.onrender.com/ventas", {
 
         method: "POST",
 

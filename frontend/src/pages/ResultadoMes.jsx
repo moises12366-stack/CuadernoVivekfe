@@ -24,7 +24,7 @@ const anio = parametros.anio || parametros.año;
         try{
 
             const respuesta = await fetch(
-                `http://localhost:3001/estadisticas/mes/${mes}/${anio}`
+                `https://vivekfe-backend.onrender.com/estadisticas/mes/${mes}/${anio}`
             );
 
             const json = await respuesta.json();

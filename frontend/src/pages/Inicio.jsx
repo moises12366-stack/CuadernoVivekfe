@@ -16,7 +16,7 @@ export default function Inicio() {
 
         try {
 
-            const respuesta = await fetch("http://localhost:3001/resumen/hoy");
+            const respuesta = await fetch("https://vivekfe-backend.onrender.com/resumen/hoy");
 
             const datos = await respuesta.json();
 

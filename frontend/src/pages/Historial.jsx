@@ -11,8 +11,8 @@ export default function Historial() {
     async function cargar(fecha = "") {
 
         const ruta = fecha
-            ? `http://localhost:3001/historial/${fecha}`
-            : "http://localhost:3001/historial";
+            ? `https://vivekfe-backend.onrender.com/historial/${fecha}`
+            : "https://vivekfe-backend.onrender.com/historial";
 
         const respuesta = await fetch(ruta);
 
@@ -32,8 +32,8 @@ export default function Historial() {
 
         const ruta =
             item.tipo === "venta"
-                ? `http://localhost:3001/ventas/${item.id}`
-                : `http://localhost:3001/gastos/${item.id}`;
+                ? `https://vivekfe-backend.onrender.com/ventas/${item.id}`
+                : `https://vivekfe-backend.onrender.com/gastos/${item.id}`;
 
         const texto =
             item.tipo === "venta"

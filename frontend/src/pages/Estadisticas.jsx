@@ -36,11 +36,11 @@ export default function Estadisticas() {
 
             const [rHoy, rSemana, rDatos] = await Promise.all([
 
-                fetch("http://localhost:3001/resumen/hoy"),
+                fetch("https://vivekfe-backend.onrender.com/resumen/hoy"),
 
-                fetch("http://localhost:3001/resumen/semana"),
+                fetch("https://vivekfe-backend.onrender.com/resumen/semana"),
 
-                fetch("http://localhost:3001/estadisticas")
+                fetch("https://vivekfe-backend.onrender.com/estadisticas")
 
             ]);
 

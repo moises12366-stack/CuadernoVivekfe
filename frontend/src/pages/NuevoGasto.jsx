@@ -23,7 +23,7 @@ export default function NuevoGasto() {
 
     try {
 
-      const respuesta = await fetch("http://localhost:3001/gastos", {
+      const respuesta = await fetch("https://vivekfe-backend.onrender.com/gastos", {
 
         method: "POST",
 
