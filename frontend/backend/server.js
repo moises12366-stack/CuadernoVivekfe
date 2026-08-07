@@ -129,3 +129,26 @@ app.listen(PORT, "0.0.0.0", ()=>{
         "Servidor iniciado en puerto " + PORT
     );
 });
+app.get("/debug-gastos", async (req,res)=>{
+
+    const db = require("./database");
+
+    db.query(
+        "SELECT column_name, data_type FROM information_schema.columns WHERE table_name='gastos'",
+        (err, resultado)=>{
+
+            if(err){
+
+                return res.json({
+                    error: err.message
+                });
+
+            }
+
+
+            res.json(resultado.rows);
+
+        }
+    );
+
+});
