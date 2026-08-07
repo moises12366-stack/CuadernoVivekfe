@@ -2,7 +2,6 @@ const express = require("express");
 const cors = require("cors");
 
 const {
-
     guardarVenta,
     obtenerVenta,
     actualizarVenta,
@@ -15,48 +14,48 @@ const {
     buscarPorFecha,
     estadisticas,
     estadisticasMes
-
 } = require("./controllers/ventasController");
 
-
 const {
-
     guardarGasto,
     obtenerGasto,
     actualizarGasto,
     totalGastosHoy,
     eliminarGasto
-
 } = require("./controllers/gastosController");
-
 
 require("./database");
 
-
 const app = express();
-
 
 app.use(cors());
 
 app.use(express.json());
 
 
-
+// PRUEBA SERVIDOR
 app.get("/", (req,res)=>{
-
     res.json({
-
         mensaje:"Servidor Vivekfe funcionando correctamente"
-
     });
-
 });
-
 
 
 // VENTAS
 
-app.post("/ventas", guardarVenta);
+app.post("/ventas", async (req,res)=>{
+    try {
+        await guardarVenta(req,res);
+    } catch(error){
+        console.log("ERROR VENTA:", error);
+
+        res.status(500).json({
+            error:"Error al guardar la venta",
+            detalle:error.message
+        });
+    }
+});
+
 
 app.get("/ventas/:id", obtenerVenta);
 
@@ -70,7 +69,19 @@ app.get("/ventas/hoy", totalVentasHoy);
 
 // GASTOS
 
-app.post("/gastos", guardarGasto);
+app.post("/gastos", async (req,res)=>{
+    try {
+        await guardarGasto(req,res);
+    } catch(error){
+        console.log("ERROR GASTO:", error);
+
+        res.status(500).json({
+            error:"Error al guardar el gasto",
+            detalle:error.message
+        });
+    }
+});
+
 
 app.get("/gastos/:id", obtenerGasto);
 
@@ -113,11 +124,8 @@ app.get("/historial/:fecha", buscarPorFecha);
 
 const PORT = 3001;
 
-
 app.listen(PORT, "0.0.0.0", ()=>{
-
     console.log(
         "Servidor iniciado en puerto " + PORT
     );
-
 });
