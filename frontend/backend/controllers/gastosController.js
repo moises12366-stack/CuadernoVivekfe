@@ -1,5 +1,6 @@
 const db = require("../database");
 
+
 function guardarGasto(req, res) {
 
     const { descripcion, valor } = req.body;
@@ -9,142 +10,168 @@ function guardarGasto(req, res) {
     const fecha = ahora.toLocaleDateString("es-CO");
     const hora = ahora.toLocaleTimeString("es-CO");
 
-    db.run(
-        `INSERT INTO gastos (descripcion,valor,fecha,hora)
-         VALUES(?,?,?,?)`,
-        [descripcion, valor, fecha, hora],
-        function (err) {
 
-            if (err) {
-                return res.status(500).json({ error: err.message });
-            }
-
-            res.json({
-                ok: true,
-                id: this.lastID
-            });
-
-        }
-    );
-
-}
-
-function obtenerGasto(req, res) {
-
-    db.get(
-
-        `SELECT * FROM gastos WHERE id=?`,
-
-        [req.params.id],
-
-        (err, fila) => {
-
-            if (err) {
-
-                return res.status(500).json(err);
-
-            }
-
-            res.json(fila);
-
-        }
-
-    );
-
-}
-
-function actualizarGasto(req, res) {
-
-    const { descripcion, valor } = req.body;
-
-    db.run(
-
-        `UPDATE gastos
-         SET descripcion=?,
-             valor=?
-         WHERE id=?`,
+    db.query(
+        `INSERT INTO gastos 
+        (descripcion, valor, fecha, hora)
+        VALUES ($1,$2,$3,$4)
+        RETURNING id`,
 
         [
-
             descripcion,
-
             valor,
-
-            req.params.id
-
+            fecha,
+            hora
         ],
 
-        function (err) {
+        (err, resultado)=>{
 
-            if (err) {
+            if(err){
+
+                return res.status(500).json({
+                    error: err.message
+                });
+
+            }
+
+
+            res.json({
+
+                ok:true,
+
+                id:resultado.rows[0].id
+
+            });
+
+
+        }
+    );
+
+}
+
+
+
+function obtenerGasto(req,res){
+
+    db.query(
+        `SELECT * FROM gastos WHERE id=$1`,
+        [req.params.id],
+
+        (err,resultado)=>{
+
+
+            if(err){
 
                 return res.status(500).json(err);
 
             }
 
-            res.json({
-                ok: true
-            });
+
+            res.json(resultado.rows[0]);
+
 
         }
-
     );
 
 }
 
-function totalGastosHoy(req, res) {
+
+
+function actualizarGasto(req,res){
+
+    const {descripcion, valor}=req.body;
+
+
+    db.query(
+        `UPDATE gastos
+         SET descripcion=$1,
+             valor=$2
+         WHERE id=$3`,
+
+        [
+            descripcion,
+            valor,
+            req.params.id
+        ],
+
+        (err)=>{
+
+
+            if(err){
+
+                return res.status(500).json(err);
+
+            }
+
+
+            res.json({
+                ok:true
+            });
+
+
+        }
+    );
+
+}
+
+
+
+function eliminarGasto(req,res){
+
+    db.query(
+        `DELETE FROM gastos WHERE id=$1`,
+        [req.params.id],
+
+        (err)=>{
+
+
+            if(err){
+
+                return res.status(500).json(err);
+
+            }
+
+
+            res.json({
+                ok:true
+            });
+
+
+        }
+    );
+
+}
+function totalGastosHoy(req,res){
 
     const hoy = new Date().toLocaleDateString("es-CO");
 
-    db.get(
 
-        `SELECT IFNULL(SUM(valor),0) total
+    db.query(
+        `SELECT COALESCE(SUM(valor),0) AS total
          FROM gastos
-         WHERE fecha=?`,
+         WHERE fecha=$1`,
 
         [hoy],
 
-        (err, fila) => {
+        (err,resultado)=>{
 
-            if (err) {
 
-                return res.status(500).json(err);
-
-            }
-
-            res.json(fila);
-
-        }
-
-    );
-
-}
-
-function eliminarGasto(req, res) {
-
-    db.run(
-
-        `DELETE FROM gastos WHERE id=?`,
-
-        [req.params.id],
-
-        function (err) {
-
-            if (err) {
+            if(err){
 
                 return res.status(500).json(err);
 
             }
 
-            res.json({
-                ok: true
-            });
+
+            res.json(resultado.rows[0]);
+
 
         }
-
     );
 
 }
+
+
 
 module.exports = {
 
