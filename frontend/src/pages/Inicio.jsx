@@ -13,28 +13,24 @@ export default function Inicio() {
     });
 
     async function cargarResumen() {
-
         try {
-
-            const respuesta = await fetch("https://vivekfe-backend.onrender.com/resumen/hoy");
+            const respuesta = await fetch(
+                "https://vivekfe-backend.onrender.com/resumen/hoy"
+            );
 
             const datos = await respuesta.json();
 
             setHoy(datos);
 
         } catch (error) {
-
             console.error(error);
-
         }
-
     }
 
     useEffect(() => {
-
         cargarResumen();
-
     }, []);
+
 
     return (
 
@@ -48,44 +44,15 @@ export default function Inicio() {
 
             </div>
 
-            <div className="fecha">
 
-                <h3>📅 Hoy</h3>
-
-                <p>{new Date().toLocaleDateString("es-CO")}</p>
-
-            </div>
-
-            <div className="card">
-
-                <span>💰 Ventas del día</span>
-
-                <h2>${Number(hoy.ventas).toLocaleString("es-CO")}</h2>
-
-            </div>
-
-            <div className="card">
-
-                <span>💸 Gastos del día</span>
-
-                <h2>${Number(hoy.gastos).toLocaleString("es-CO")}</h2>
-
-            </div>
-
-            <div className="card">
-
-                <span>📈 Ganancia del día</span>
-
-                <h2>${Number(hoy.ganancia).toLocaleString("es-CO")}</h2>
-
-            </div>
-
+            {/* BOTONES PRINCIPALES ARRIBA */}
             <button
                 className="verde"
                 onClick={() => navigate("/nueva-venta")}
             >
                 ➕ Nueva Venta
             </button>
+
 
             <button
                 className="rojo"
@@ -94,12 +61,63 @@ export default function Inicio() {
                 💸 Nuevo Gasto
             </button>
 
+
+
+            <div className="fecha">
+
+                <h3>📅 Hoy</h3>
+
+                <p>
+                    {new Date().toLocaleDateString("es-CO")}
+                </p>
+
+            </div>
+
+
+
+            <div className="card">
+
+                <span>💰 Ventas del día</span>
+
+                <h2>
+                    ${Number(hoy.ventas).toLocaleString("es-CO")}
+                </h2>
+
+            </div>
+
+
+
+            <div className="card">
+
+                <span>💸 Gastos del día</span>
+
+                <h2>
+                    ${Number(hoy.gastos).toLocaleString("es-CO")}
+                </h2>
+
+            </div>
+
+
+
+            <div className="card">
+
+                <span>📈 Ganancia del día</span>
+
+                <h2>
+                    ${Number(hoy.ganancia).toLocaleString("es-CO")}
+                </h2>
+
+            </div>
+
+
+
             <button
                 className="azul"
                 onClick={() => navigate("/historial")}
             >
                 📖 Historial
             </button>
+
 
             <button
                 className="gris"
@@ -108,12 +126,14 @@ export default function Inicio() {
                 📊 Estadísticas
             </button>
 
+
             <button
                 className="gris"
                 onClick={() => navigate("/configuracion")}
             >
                 ⚙ Configuración
             </button>
+
 
         </div>
 

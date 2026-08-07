@@ -109,3 +109,15 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+body{
+    background:#edf1ef;
+    color:#222;
+}
+
+h1,h2,h3,p,span{
+    color:#222;
+}
+
+button{
+    font-weight:bold;
+}

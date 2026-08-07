@@ -81,7 +81,10 @@ export default function Meses() {
 
                             cursor:"pointer",
 
-                            fontSize:"16px"
+                            ffontSize:"18px",
+fontWeight:"bold",
+color:"#222",
+background:"#ffffff"
 
                         }}
 
