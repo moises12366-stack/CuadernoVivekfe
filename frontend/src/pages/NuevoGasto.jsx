@@ -2,98 +2,219 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/NuevaVenta.css";
 
+
 export default function NuevoGasto() {
 
-  const navigate = useNavigate();
 
-  const [descripcion, setDescripcion] = useState("");
-  const [valor, setValor] = useState("");
+const navigate = useNavigate();
 
-  async function guardarGasto() {
 
-    if (descripcion.trim() === "") {
-      alert("Escribe una descripción.");
-      return;
-    }
+const [descripcion, setDescripcion] = useState("");
+const [valor, setValor] = useState("");
+const [guardando, setGuardando] = useState(false);
 
-    if (valor === "" || Number(valor) <= 0) {
-      alert("Escribe un valor válido.");
-      return;
-    }
 
-    try {
 
-      const respuesta = await fetch("https://vivekfe-backend.onrender.com/gastos", {
+async function guardarGasto(){
 
-        method: "POST",
 
-        headers: {
-          "Content-Type": "application/json"
-        },
+    if(descripcion.trim() === ""){
 
-        body: JSON.stringify({
-          descripcion,
-          valor
-        })
+        alert("Escribe una descripción.");
 
-      });
-
-      if (!respuesta.ok) {
-        throw new Error();
-      }
-
-      alert("Gasto guardado correctamente.");
-
-      navigate("/");
-
-    } catch {
-
-      alert("Error al guardar el gasto.");
+        return;
 
     }
 
-  }
 
-  return (
+    if(valor === "" || Number(valor) <= 0){
 
-    <div className="contenedor">
+        alert("Escribe un valor válido.");
 
-      <h1>💸 Nuevo Gasto</h1>
+        return;
 
-      <label>Descripción</label>
+    }
 
-      <input
-        type="text"
-        value={descripcion}
-        onChange={(e) => setDescripcion(e.target.value)}
-        placeholder="Ej: Compra de materas"
-      />
 
-      <label>Valor</label>
 
-      <input
-        type="number"
-        value={valor}
-        onChange={(e) => setValor(e.target.value)}
-        placeholder="0"
-      />
+    setGuardando(true);
 
-      <button
-        className="guardar"
-        onClick={guardarGasto}
-      >
-        Guardar Gasto
-      </button>
 
-      <button
-        className="volver"
-        onClick={() => navigate("/")}
-      >
-        ← Volver
-      </button>
 
-    </div>
+    try{
 
-  );
+
+        const respuesta = await fetch(
+
+            "https://vivekfe-backend.onrender.com/gastos",
+
+            {
+
+                method:"POST",
+
+                headers:{
+
+                    "Content-Type":"application/json"
+
+                },
+
+
+                body:JSON.stringify({
+
+                    descripcion: descripcion.trim(),
+
+                    valor: Number(valor)
+
+                })
+
+            }
+
+        );
+
+
+
+        const datos = await respuesta.json();
+
+
+
+        console.log("Respuesta servidor gasto:", datos);
+
+
+
+        if(!respuesta.ok){
+
+            throw new Error(datos.error || "Error desconocido");
+
+        }
+
+
+
+        alert("Gasto guardado correctamente.");
+
+
+        setDescripcion("");
+
+        setValor("");
+
+
+        navigate("/");
+
+
+    }
+
+    catch(error){
+
+
+        console.error("ERROR GUARDANDO GASTO:", error);
+
+
+        alert(
+
+            "Error al guardar el gasto:\n" + error.message
+
+        );
+
+
+    }
+
+
+    finally{
+
+
+        setGuardando(false);
+
+
+    }
+
+
+}
+
+
+
+
+return (
+
+<div className="contenedor">
+
+
+<h1>💸 Nuevo Gasto</h1>
+
+
+
+<label>Descripción</label>
+
+
+<input
+
+type="text"
+
+value={descripcion}
+
+onChange={(e)=>setDescripcion(e.target.value)}
+
+placeholder="Ej: Compra de materas"
+
+/>
+
+
+
+
+<label>Valor</label>
+
+
+<input
+
+type="number"
+
+value={valor}
+
+onChange={(e)=>setValor(e.target.value)}
+
+placeholder="0"
+
+/>
+
+
+
+
+
+<button
+
+className="guardar"
+
+onClick={guardarGasto}
+
+disabled={guardando}
+
+>
+
+
+{guardando ? "Guardando..." : "Guardar Gasto"}
+
+
+</button>
+
+
+
+
+
+<button
+
+className="volver"
+
+onClick={()=>navigate("/")}
+
+>
+
+← Volver
+
+</button>
+
+
+
+</div>
+
+);
+
 
 }
