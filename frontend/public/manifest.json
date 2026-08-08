@@ -1,0 +1,22 @@
+{
+  "name": "Vivekfe - Administración de Vivero",
+  "short_name": "Vivekfe",
+  "description": "Sistema de administración para el vivero Vivekfe",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#166534",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/logo-vivekfe.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
