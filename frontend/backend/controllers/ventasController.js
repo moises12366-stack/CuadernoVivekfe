@@ -875,16 +875,12 @@ async function buscarPorFecha(req,res){
 
 try{
 
-
 const partes = req.params.fecha.split("-");
 
 
-
-const fecha =
-
-`${partes[2]}/${partes[1]}/${partes[0]}`;
-
-
+const dia = Number(partes[2]);
+const mes = Number(partes[1]);
+const año = Number(partes[0]);
 
 
 
@@ -892,67 +888,56 @@ const resultado = await db.query(
 
 `
 SELECT
-
 id,
-
 codigo,
-
 valor,
-
 pago,
-
 fecha,
-
 hora,
-
 'venta' AS tipo
-
 
 FROM ventas
 
-
-WHERE fecha=$1
-
-
+WHERE 
+EXTRACT(DAY FROM TO_DATE(fecha,'DD/MM/YYYY'))=$1
+AND
+EXTRACT(MONTH FROM TO_DATE(fecha,'DD/MM/YYYY'))=$2
+AND
+EXTRACT(YEAR FROM TO_DATE(fecha,'DD/MM/YYYY'))=$3
 
 
 UNION ALL
 
 
-
-
 SELECT
-
 id,
-
 descripcion AS codigo,
-
 valor,
-
 '' AS pago,
-
 fecha,
-
 hora,
-
 'gasto' AS tipo
-
 
 FROM gastos
 
-
-WHERE fecha=$1
-
+WHERE
+EXTRACT(DAY FROM TO_DATE(fecha,'DD/MM/YYYY'))=$1
+AND
+EXTRACT(MONTH FROM TO_DATE(fecha,'DD/MM/YYYY'))=$2
+AND
+EXTRACT(YEAR FROM TO_DATE(fecha,'DD/MM/YYYY'))=$3
 
 
 ORDER BY id DESC
-
 `,
 
-[fecha]
+[
+dia,
+mes,
+año
+]
 
 );
-
 
 
 res.json(resultado.rows);
@@ -961,9 +946,7 @@ res.json(resultado.rows);
 
 }catch(error){
 
-
 console.log("ERROR BUSCAR FECHA:",error);
-
 
 
 res.status(500).json({
@@ -975,8 +958,9 @@ error:error.message
 
 }
 
-
 }
+
+
 // ===============================
 // ESTADISTICAS
 // ===============================
