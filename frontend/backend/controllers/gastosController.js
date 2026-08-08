@@ -1,67 +1,165 @@
 const db = require("../database");
 
 
-function guardarGasto(req, res) {
+// GUARDAR GASTO
 
-console.log("DATOS RECIBIDOS GASTO:", req.body);
+async function guardarGasto(req, res) {
 
-    const { descripcion, valor } = req.body;
+    console.log("DATOS RECIBIDOS GASTO:", req.body);
 
+    try {
 
-    const ahora = new Date();
-
-
-    const fecha = ahora.toLocaleDateString("es-CO");
-    const hora = ahora.toLocaleTimeString("es-CO");
+        const { descripcion, valor } = req.body;
 
 
-    db.query(
+        const ahora = new Date();
 
-        `INSERT INTO gastos 
-        (descripcion, valor, fecha, hora)
-        VALUES ($1,$2,$3,$4)
-        RETURNING id`,
-
-        [
-            descripcion.trim(),
-            Number(valor),
-            fecha,
-            hora
-        ],
+        const fecha = ahora.toLocaleDateString("es-CO");
+        const hora = ahora.toLocaleTimeString("es-CO");
 
 
-        (err, resultado)=>{
+        const resultado = await db.query(
+            `
+            INSERT INTO gastos
+            (descripcion, valor, fecha, hora)
+            VALUES ($1,$2,$3,$4)
+            RETURNING *
+            `,
+            [
+                descripcion,
+                Number(valor),
+                fecha,
+                hora
+            ]
+        );
 
 
-            if(err){
+        res.json({
 
-                console.log("ERROR GASTO:", err);
+            ok:true,
 
-                return res.status(500).json({
+            gasto:resultado.rows[0]
 
-                    error:"Error al guardar gasto",
-
-                    detalle:err.message
-
-                });
-
-            }
+        });
 
 
 
-            res.json({
-
-                ok:true,
-
-                id:resultado.rows[0].id
-
-            });
+    } catch(error) {
 
 
-        }
+        console.log("ERROR GUARDANDO GASTO:", error);
 
-    );
 
+        res.status(500).json({
+
+            error:"Error al guardar gasto",
+
+            detalle:error.message
+
+        });
+
+
+    }
+
+}
+
+
+
+
+// OBTENER GASTO
+
+async function obtenerGasto(req,res){
+
+    try{
+
+
+        const resultado = await db.query(
+
+            `
+            SELECT *
+            FROM gastos
+            WHERE id=$1
+            `,
+
+            [
+                req.params.id
+            ]
+
+        );
+
+
+        res.json(resultado.rows[0]);
+
+
+
+    }catch(error){
+
+
+        res.status(500).json({
+
+            error:error.message
+
+        });
+
+
+    }
+
+}
+
+
+
+
+// ACTUALIZAR GASTO
+
+async function actualizarGasto(req,res){
+
+    try{
+
+
+        const {descripcion, valor}=req.body;
+
+
+        await db.query(
+
+            `
+            UPDATE gastos
+            SET descripcion=$1,
+                valor=$2
+            WHERE id=$3
+            `,
+
+            [
+
+                descripcion,
+
+                Number(valor),
+
+                req.params.id
+
+            ]
+
+        );
+
+
+        res.json({
+
+            ok:true
+
+        });
+
+
+
+    }catch(error){
+
+
+        res.status(500).json({
+
+            error:error.message
+
+        });
+
+
+    }
 
 }
 
@@ -69,95 +167,46 @@ console.log("DATOS RECIBIDOS GASTO:", req.body);
 
 
 
-function obtenerGasto(req,res){
+// ELIMINAR GASTO
+
+async function eliminarGasto(req,res){
+
+    try{
 
 
-    db.query(
+        await db.query(
 
-        `SELECT * FROM gastos WHERE id=$1`,
+            `
+            DELETE FROM gastos
+            WHERE id=$1
+            `,
 
-        [req.params.id],
+            [
+                req.params.id
+            ]
 
-
-        (err,resultado)=>{
-
-
-            if(err){
-
-                return res.status(500).json({
-
-                    error:err.message
-
-                });
-
-            }
+        );
 
 
-            res.json(resultado.rows[0]);
+        res.json({
 
+            ok:true
 
-        }
-
-    );
-
-
-}
+        });
 
 
 
+    }catch(error){
 
 
-function actualizarGasto(req,res){
+        res.status(500).json({
+
+            error:error.message
+
+        });
 
 
-    const {descripcion, valor}=req.body;
-
-
-
-    db.query(
-
-        `UPDATE gastos
-         SET descripcion=$1,
-             valor=$2
-         WHERE id=$3`,
-
-        [
-
-            descripcion,
-
-            Number(valor),
-
-            req.params.id
-
-        ],
-
-
-        (err)=>{
-
-
-            if(err){
-
-                return res.status(500).json({
-
-                    error:err.message
-
-                });
-
-            }
-
-
-
-            res.json({
-
-                ok:true
-
-            });
-
-
-        }
-
-    );
-
+    }
 
 }
 
@@ -165,105 +214,61 @@ function actualizarGasto(req,res){
 
 
 
+// TOTAL GASTOS HOY
 
-function eliminarGasto(req,res){
-
-
-    db.query(
-
-        `DELETE FROM gastos WHERE id=$1`,
-
-        [req.params.id],
+async function totalGastosHoy(req,res){
 
 
-        (err)=>{
+    try{
 
 
-            if(err){
-
-                return res.status(500).json({
-
-                    error:err.message
-
-                });
-
-            }
+        const hoy = new Date().toLocaleDateString("es-CO");
 
 
 
-            res.json({
+        const resultado = await db.query(
 
-                ok:true
+            `
+            SELECT COALESCE(SUM(valor),0) AS total
+            FROM gastos
+            WHERE fecha=$1
+            `,
 
-            });
+            [
+                hoy
+            ]
 
-
-        }
-
-    );
-
-
-}
-
-
+        );
 
 
 
+        res.json({
 
+            total:Number(resultado.rows[0].total)
 
-function totalGastosHoy(req,res){
-
-
-    const hoy = new Date().toLocaleDateString("es-CO");
-
-
-
-    db.query(
-
-        `SELECT COALESCE(SUM(valor),0) AS total
-         FROM gastos
-         WHERE fecha=$1`,
-
-
-        [hoy],
-
-
-        (err,resultado)=>{
-
-
-            if(err){
-
-                return res.status(500).json({
-
-                    error:err.message
-
-                });
-
-            }
+        });
 
 
 
-            res.json({
-
-                total:Number(resultado.rows[0].total)
-
-            });
+    }catch(error){
 
 
-        }
+        res.status(500).json({
 
-    );
+            error:error.message
 
+        });
+
+
+    }
 
 }
-
 
 
 
 
 
 module.exports = {
-
 
     guardarGasto,
 
@@ -274,6 +279,5 @@ module.exports = {
     totalGastosHoy,
 
     eliminarGasto
-
 
 };
