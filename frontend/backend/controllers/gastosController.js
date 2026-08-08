@@ -1,40 +1,84 @@
 const db = require("../database");
 
 
+// ===============================
 // GUARDAR GASTO
+// ===============================
 
-async function guardarGasto(req, res) {
+async function guardarGasto(req,res){
 
     console.log("DATOS RECIBIDOS GASTO:", req.body);
 
-    try {
 
-        const { descripcion, valor } = req.body;
+    try{
+
+
+        const {descripcion, valor} = req.body;
+
+
+        if(!descripcion || !valor){
+
+            return res.status(400).json({
+
+                error:"Faltan datos del gasto"
+
+            });
+
+        }
+
 
 
         const ahora = new Date();
 
+
         const fecha = ahora.toLocaleDateString("es-CO");
+
         const hora = ahora.toLocaleTimeString("es-CO");
 
 
+
         const resultado = await db.query(
+
             `
             INSERT INTO gastos
-            (descripcion, valor, fecha, hora)
-            VALUES ($1,$2,$3,$4)
-            RETURNING *
-            `,
-            [
+            (
                 descripcion,
-                Number(valor),
+                valor,
                 fecha,
                 hora
+            )
+
+            VALUES
+            ($1,$2,$3,$4)
+
+            RETURNING *
+            `,
+
+
+            [
+
+                descripcion.trim(),
+
+                Number(valor),
+
+                fecha,
+
+                hora
+
             ]
+
         );
 
 
-        res.json({
+
+        console.log(
+            "GASTO GUARDADO:",
+            resultado.rows[0]
+        );
+
+
+
+        return res.json({
 
             ok:true,
 
@@ -44,15 +88,19 @@ async function guardarGasto(req, res) {
 
 
 
-    } catch(error) {
+    }catch(error){
 
 
-        console.log("ERROR GUARDANDO GASTO:", error);
+        console.log(
+            "ERROR GUARDANDO GASTO:",
+            error
+        );
 
 
-        res.status(500).json({
 
-            error:"Error al guardar gasto",
+        return res.status(500).json({
+
+            error:"Error guardando gasto",
 
             detalle:error.message
 
@@ -61,14 +109,20 @@ async function guardarGasto(req, res) {
 
     }
 
+
 }
 
 
 
 
+
+// ===============================
 // OBTENER GASTO
+// ===============================
+
 
 async function obtenerGasto(req,res){
+
 
     try{
 
@@ -82,13 +136,20 @@ async function obtenerGasto(req,res){
             `,
 
             [
+
                 req.params.id
+
             ]
 
         );
 
 
-        res.json(resultado.rows[0]);
+
+        res.json(
+
+            resultado.rows[0] || null
+
+        );
 
 
 
@@ -104,28 +165,38 @@ async function obtenerGasto(req,res){
 
     }
 
+
 }
 
 
 
 
+
+// ===============================
 // ACTUALIZAR GASTO
+// ===============================
+
 
 async function actualizarGasto(req,res){
+
 
     try{
 
 
-        const {descripcion, valor}=req.body;
+        const {descripcion,valor}=req.body;
+
 
 
         await db.query(
 
             `
             UPDATE gastos
+
             SET descripcion=$1,
                 valor=$2
+
             WHERE id=$3
+
             `,
 
             [
@@ -141,6 +212,7 @@ async function actualizarGasto(req,res){
         );
 
 
+
         res.json({
 
             ok:true
@@ -161,15 +233,20 @@ async function actualizarGasto(req,res){
 
     }
 
+
 }
 
 
 
 
 
+// ===============================
 // ELIMINAR GASTO
+// ===============================
+
 
 async function eliminarGasto(req,res){
+
 
     try{
 
@@ -181,11 +258,15 @@ async function eliminarGasto(req,res){
             WHERE id=$1
             `,
 
+
             [
+
                 req.params.id
+
             ]
 
         );
+
 
 
         res.json({
@@ -208,13 +289,17 @@ async function eliminarGasto(req,res){
 
     }
 
+
 }
 
 
 
 
 
+// ===============================
 // TOTAL GASTOS HOY
+// ===============================
+
 
 async function totalGastosHoy(req,res){
 
@@ -230,12 +315,18 @@ async function totalGastosHoy(req,res){
 
             `
             SELECT COALESCE(SUM(valor),0) AS total
+
             FROM gastos
+
             WHERE fecha=$1
+
             `,
 
+
             [
+
                 hoy
+
             ]
 
         );
@@ -244,7 +335,7 @@ async function totalGastosHoy(req,res){
 
         res.json({
 
-            total:Number(resultado.rows[0].total)
+            total:Number(resultado.rows[0].total) || 0
 
         });
 
@@ -262,13 +353,14 @@ async function totalGastosHoy(req,res){
 
     }
 
+
 }
 
 
 
 
-
 module.exports = {
+
 
     guardarGasto,
 
@@ -279,5 +371,6 @@ module.exports = {
     totalGastosHoy,
 
     eliminarGasto
+
 
 };
