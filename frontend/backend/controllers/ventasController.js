@@ -1,849 +1,1259 @@
 const db = require("../database");
 
 
-function guardarVenta(req, res) {
+// ===============================
+// GUARDAR VENTA
+// ===============================
 
-    const { codigo, valor, pago } = req.body;
+async function guardarVenta(req,res){
 
-    const ahora = new Date();
+    try{
 
-    const fecha = ahora.toLocaleDateString("es-CO");
-    const hora = ahora.toLocaleTimeString("es-CO");
+        const {codigo, valor, pago} = req.body;
 
 
-    db.query(
-        `INSERT INTO ventas 
-        (codigo, valor, pago, fecha, hora)
-        VALUES ($1,$2,$3,$4,$5)
-        RETURNING id`,
-        [codigo, valor, pago, fecha, hora],
+        const ahora = new Date();
 
-        (err, resultado) => {
+        const fecha = ahora.toLocaleDateString("es-CO");
 
-            if (err) {
-                return res.status(500).json({
-                    error: err.message
-                });
-            }
+        const hora = ahora.toLocaleTimeString("es-CO");
 
 
-            res.json({
-                ok: true,
-                id: resultado.rows[0].id
-            });
 
-        }
-    );
+        const resultado = await db.query(
 
-}
+            `
+            INSERT INTO ventas
+            (
+                codigo,
+                valor,
+                pago,
+                fecha,
+                hora
+            )
 
+            VALUES
+            ($1,$2,$3,$4,$5)
 
+            RETURNING id
+            `,
 
-function obtenerVenta(req,res){
 
-    db.query(
-        `SELECT * FROM ventas WHERE id=$1`,
-        [req.params.id],
+            [
+                codigo,
+                Number(valor),
+                pago,
+                fecha,
+                hora
+            ]
 
-        (err, resultado)=>{
-
-            if(err){
-                return res.status(500).json(err);
-            }
-
-            res.json(resultado.rows[0]);
-
-        }
-    );
-
-}
-
-
-
-function actualizarVenta(req,res){
-
-    const {codigo, valor, pago}=req.body;
-
-
-    db.query(
-        `UPDATE ventas
-        SET codigo=$1,
-            valor=$2,
-            pago=$3
-        WHERE id=$4`,
-
-        [
-            codigo,
-            valor,
-            pago,
-            req.params.id
-        ],
-
-        (err)=>{
-
-            if(err){
-                return res.status(500).json(err);
-            }
-
-
-            res.json({
-                ok:true
-            });
-
-        }
-    );
-
-}
-
-
-
-function eliminarVenta(req,res){
-
-    db.query(
-        `DELETE FROM ventas WHERE id=$1`,
-        [req.params.id],
-
-        (err)=>{
-
-            if(err){
-                return res.status(500).json(err);
-            }
-
-
-            res.json({
-                ok:true
-            });
-
-        }
-    );
-
-}
-function totalVentasHoy(req, res) {
-
-    const hoy = new Date().toLocaleDateString("es-CO");
-
-
-    db.query(
-        `SELECT COALESCE(SUM(valor),0) AS total
-         FROM ventas
-         WHERE fecha=$1`,
-        [hoy],
-
-        (err, resultado)=>{
-
-            if(err){
-                return res.status(500).json({
-                    error: err.message
-                });
-            }
-
-
-            res.json(resultado.rows[0]);
-
-        }
-    );
-
-}
-
-
-
-function resumenHoy(req,res){
-
-    const hoy = new Date().toLocaleDateString("es-CO");
-
-
-    db.query(
-        `SELECT COALESCE(SUM(valor),0) AS total
-         FROM ventas
-         WHERE fecha=$1`,
-        [hoy],
-
-        (err, ventas)=>{
-
-            if(err){
-                return res.status(500).json(err);
-            }
-
-
-            db.query(
-                `SELECT COALESCE(SUM(valor),0) AS total
-                 FROM gastos
-                 WHERE fecha=$1`,
-                [hoy],
-
-                (err2,gastos)=>{
-
-                    if(err2){
-                        return res.status(500).json(err2);
-                    }
-
-
-                    res.json({
-
-                        ventas:Number(ventas.rows[0].total),
-
-                        gastos:Number(gastos.rows[0].total),
-
-                        ganancia:
-                        Number(ventas.rows[0].total) -
-                        Number(gastos.rows[0].total)
-
-                    });
-
-
-                }
-            );
-
-
-        }
-    );
-
-}
-
-
-
-function resumenSemana(req,res){
-
-    const hoy = new Date();
-
-    let diaSemana = hoy.getDay();
-
-    if(diaSemana===0) diaSemana=7;
-
-
-    const lunes = new Date(hoy);
-
-    lunes.setHours(0,0,0,0);
-
-    lunes.setDate(
-        hoy.getDate()-(diaSemana-1)
-    );
-
-
-    const fechas=[];
-
-    const actual=new Date(lunes);
-
-
-    while(actual<=hoy){
-
-        fechas.push(
-            `${actual.getDate()}/${actual.getMonth()+1}/${actual.getFullYear()}`
         );
 
-        actual.setDate(actual.getDate()+1);
+
+
+        res.json({
+
+            ok:true,
+
+            id:resultado.rows[0].id
+
+        });
+
+
+
+    }catch(error){
+
+
+        console.log("ERROR VENTA:",error);
+
+
+        res.status(500).json({
+
+            error:error.message
+
+        });
+
 
     }
 
 
-    db.query(
-        `SELECT COALESCE(SUM(valor),0) AS total
-         FROM ventas
-         WHERE fecha = ANY($1)`,
-
-        [fechas],
-
-        (err,ventas)=>{
-
-            if(err){
-                return res.status(500).json(err);
-            }
+}
 
 
-            db.query(
-                `SELECT COALESCE(SUM(valor),0) AS total
-                 FROM gastos
-                 WHERE fecha = ANY($1)`,
-
-                [fechas],
-
-                (err2,gastos)=>{
 
 
-                    if(err2){
-                        return res.status(500).json(err2);
-                    }
+
+// ===============================
+// OBTENER VENTA
+// ===============================
 
 
-                    res.json({
-
-                        ventas:Number(ventas.rows[0].total),
-
-                        gastos:Number(gastos.rows[0].total),
-
-                        ganancia:
-                        Number(ventas.rows[0].total) -
-                        Number(gastos.rows[0].total)
-
-                    });
+async function obtenerVenta(req,res){
 
 
-                }
-            );
+try{
 
 
-        }
-    );
+const resultado = await db.query(
+
+`
+SELECT *
+FROM ventas
+WHERE id=$1
+`,
+
+[req.params.id]
+
+);
+
+
+
+res.json(resultado.rows[0] || null);
+
+
+
+}catch(error){
+
+
+res.status(500).json({
+
+error:error.message
+
+});
+
 
 }
-function resumenMes(req,res){
 
-    const hoy = new Date();
-
-    const mes = hoy.getMonth()+1;
-    const año = hoy.getFullYear();
-
-
-    db.query(
-        `SELECT valor,fecha FROM ventas`,
-
-        (err, ventas)=>{
-
-            if(err){
-                return res.status(500).json(err);
-            }
-
-
-            db.query(
-                `SELECT valor,fecha FROM gastos`,
-
-                (err2,gastos)=>{
-
-
-                    if(err2){
-                        return res.status(500).json(err2);
-                    }
-
-
-                    let totalVentas=0;
-                    let totalGastos=0;
-
-
-                    ventas.rows.forEach(v=>{
-
-                        const p=v.fecha.split("/");
-
-                        if(
-                            Number(p[1])===mes &&
-                            Number(p[2])===año
-                        ){
-
-                            totalVentas += Number(v.valor);
-
-                        }
-
-                    });
-
-
-
-                    gastos.rows.forEach(g=>{
-
-                        const p=g.fecha.split("/");
-
-
-                        if(
-                            Number(p[1])===mes &&
-                            Number(p[2])===año
-                        ){
-
-                            totalGastos += Number(g.valor);
-
-                        }
-
-                    });
-
-
-
-                    res.json({
-
-                        ventas:totalVentas,
-
-                        gastos:totalGastos,
-
-                        ganancia:
-                        totalVentas-totalGastos
-
-                    });
-
-
-                }
-            );
-
-
-        }
-    );
 
 }
 
 
 
 
-function historial(req,res){
 
-    db.query(
-        `
-        SELECT
-            id,
-            codigo,
-            valor,
-            pago,
-            fecha,
-            hora,
-            'venta' AS tipo
-        FROM ventas
+// ===============================
+// ACTUALIZAR VENTA
+// ===============================
 
 
-        UNION ALL
+async function actualizarVenta(req,res){
 
 
-        SELECT
-            id,
-            descripcion AS codigo,
-            valor,
-            '' AS pago,
-            fecha,
-            hora,
-            'gasto' AS tipo
-        FROM gastos
+try{
 
 
-        ORDER BY fecha DESC,hora DESC
-        `,
-
-        (err,resultado)=>{
+const {codigo,valor,pago}=req.body;
 
 
-            if(err){
 
-                return res.status(500).json({
-                    error:err.message
-                });
+await db.query(
 
-            }
+`
+UPDATE ventas
+
+SET codigo=$1,
+valor=$2,
+pago=$3
+
+WHERE id=$4
+
+`,
+
+[
+
+codigo,
+
+Number(valor),
+
+pago,
+
+req.params.id
+
+]
+
+);
 
 
-            res.json(resultado.rows);
+
+res.json({
+
+ok:true
+
+});
 
 
-        }
-    );
+
+}catch(error){
+
+
+res.status(500).json({
+
+error:error.message
+
+});
+
+
+}
+
+
+}
+// ===============================
+// ELIMINAR VENTA
+// ===============================
+
+
+async function eliminarVenta(req,res){
+
+
+try{
+
+
+await db.query(
+
+`
+DELETE FROM ventas
+WHERE id=$1
+`,
+
+[req.params.id]
+
+);
+
+
+
+res.json({
+
+ok:true
+
+});
+
+
+
+}catch(error){
+
+
+res.status(500).json({
+
+error:error.message
+
+});
+
+
+}
+
 
 }
 
 
 
 
-function buscarPorFecha(req,res){
+
+// ===============================
+// TOTAL VENTAS HOY
+// ===============================
 
 
-    const partes=req.params.fecha.split("-");
+async function totalVentasHoy(req,res){
 
 
-    const año=Number(partes[0]);
-    const mes=Number(partes[1]);
-    const dia=Number(partes[2]);
+try{
 
 
-    const fecha=`${dia}/${mes}/${año}`;
+const hoy = new Date().toLocaleDateString("es-CO");
 
 
 
-    db.query(
-        `
-        SELECT
-            id,
-            codigo,
-            valor,
-            pago,
-            fecha,
-            hora,
-            'venta' AS tipo
-        FROM ventas
-        WHERE fecha=$1
+const resultado = await db.query(
+
+`
+SELECT COALESCE(SUM(valor),0) AS total
+
+FROM ventas
+
+WHERE fecha=$1
+
+`,
+
+[hoy]
+
+);
 
 
-        UNION ALL
+
+res.json({
+
+total:Number(resultado.rows[0].total) || 0
+
+});
 
 
-        SELECT
-            id,
-            descripcion AS codigo,
-            valor,
-            '' AS pago,
-            fecha,
-            hora,
-            'gasto' AS tipo
-        FROM gastos
-        WHERE fecha=$1
+
+}catch(error){
 
 
-        ORDER BY hora DESC
-        `,
+res.status(500).json({
 
-        [fecha],
+error:error.message
 
-        (err,resultado)=>{
+});
 
-
-            if(err){
-
-                return res.status(500).json({
-                    error:err.message
-                });
-
-            }
-
-
-            res.json(resultado.rows);
-
-
-        }
-    );
 
 }
-function estadisticas(req,res){
 
-    const hoy = new Date();
-
-    const mes = hoy.getMonth()+1;
-    const año = hoy.getFullYear();
-
-
-
-    db.query(
-        `SELECT * FROM ventas`,
-
-        (err, ventas)=>{
-
-
-            if(err){
-                return res.status(500).json(err);
-            }
-
-
-
-            db.query(
-                `SELECT * FROM gastos`,
-
-                (err2,gastos)=>{
-
-
-                    if(err2){
-                        return res.status(500).json(err2);
-                    }
-
-
-
-                    let ventasMes=[];
-                    let gastosMes=[];
-
-
-
-                    ventas.rows.forEach(v=>{
-
-                        const p=v.fecha.split("/");
-
-
-                        if(
-                            Number(p[1])===mes &&
-                            Number(p[2])===año
-                        ){
-
-                            ventasMes.push(v);
-
-                        }
-
-                    });
-
-
-
-                    gastos.rows.forEach(g=>{
-
-                        const p=g.fecha.split("/");
-
-
-                        if(
-                            Number(p[1])===mes &&
-                            Number(p[2])===año
-                        ){
-
-                            gastosMes.push(g);
-
-                        }
-
-                    });
-
-
-
-                    const totalVentas =
-                    ventasMes.reduce(
-                        (a,b)=>a+Number(b.valor),
-                        0
-                    );
-
-
-                    const totalGastos =
-                    gastosMes.reduce(
-                        (a,b)=>a+Number(b.valor),
-                        0
-                    );
-
-
-
-                    const promedioVenta =
-                    ventasMes.length===0
-                    ?0
-                    :totalVentas/ventasMes.length;
-
-
-
-                    const codigos={};
-
-
-
-                    ventasMes.forEach(v=>{
-
-                        if(!codigos[v.codigo]){
-
-                            codigos[v.codigo]={
-                                cantidad:0,
-                                total:0
-                            };
-
-                        }
-
-
-                        codigos[v.codigo].cantidad++;
-
-                        codigos[v.codigo].total += Number(v.valor);
-
-
-                    });
-
-
-
-                    let codigoMasVendido="-";
-                    let cantidadMayor=0;
-
-                    let codigoMasDinero="-";
-                    let dineroMayor=0;
-
-
-
-                    Object.keys(codigos).forEach(codigo=>{
-
-
-                        if(
-                            codigos[codigo].cantidad >
-                            cantidadMayor
-                        ){
-
-                            cantidadMayor =
-                            codigos[codigo].cantidad;
-
-                            codigoMasVendido=codigo;
-
-                        }
-
-
-
-                        if(
-                            codigos[codigo].total >
-                            dineroMayor
-                        ){
-
-                            dineroMayor =
-                            codigos[codigo].total;
-
-                            codigoMasDinero=codigo;
-
-                        }
-
-
-                    });
-
-
-
-                    res.json({
-
-                        ventasMes:totalVentas,
-
-                        gastosMes:totalGastos,
-
-                        gananciaMes:
-                        totalVentas-totalGastos,
-
-                        numeroVentas:
-                        ventasMes.length,
-
-                        numeroGastos:
-                        gastosMes.length,
-
-                        promedioVenta,
-
-                        codigoMasVendido,
-
-                        cantidadMayor,
-
-                        codigoMasDinero,
-
-                        dineroMayor
-
-                    });
-
-
-                }
-            );
-
-
-        }
-    );
 
 }
 
 
 
 
-function estadisticasMes(req,res){
 
-    const mes = Number(req.params.mes);
-
-    const año = Number(req.params.anio);
-
+// ===============================
+// RESUMEN DEL DIA
+// ===============================
 
 
-    const filtrar=(fecha)=>{
-
-        const partes=fecha.split("/");
+async function resumenHoy(req,res){
 
 
-        return (
-            Number(partes[1])===mes &&
-            Number(partes[2])===año
-        );
+try{
 
-    };
+
+const hoy = new Date().toLocaleDateString("es-CO");
 
 
 
-    db.query(
-        `SELECT * FROM ventas`,
+const ventas = await db.query(
 
-        (err,ventas)=>{
+`
+SELECT COALESCE(SUM(valor),0) AS total
 
+FROM ventas
 
-            if(err){
-                return res.status(500).json(err);
-            }
+WHERE fecha=$1
 
+`,
 
+[hoy]
 
-            db.query(
-                `SELECT * FROM gastos`,
-
-                (err2,gastos)=>{
-
-
-                    if(err2){
-                        return res.status(500).json(err2);
-                    }
+);
 
 
 
-                    const ventasMes =
-                    ventas.rows.filter(
-                        v=>filtrar(v.fecha)
-                    );
+const gastos = await db.query(
 
+`
+SELECT COALESCE(SUM(valor),0) AS total
 
-                    const gastosMes =
-                    gastos.rows.filter(
-                        g=>filtrar(g.fecha)
-                    );
+FROM gastos
 
+WHERE fecha=$1
 
+`,
 
-                    const totalVentas =
-                    ventasMes.reduce(
-                        (a,b)=>a+Number(b.valor),
-                        0
-                    );
+[hoy]
 
-
-                    const totalGastos =
-                    gastosMes.reduce(
-                        (a,b)=>a+Number(b.valor),
-                        0
-                    );
+);
 
 
 
-                    res.json({
-
-                        ventas:totalVentas,
-
-                        gastos:totalGastos,
-
-                        ganancia:
-                        totalVentas-totalGastos,
-
-                        numeroVentas:
-                        ventasMes.length,
-
-                        numeroGastos:
-                        gastosMes.length,
-
-                        promedioVenta:
-                        ventasMes.length
-                        ? totalVentas/ventasMes.length
-                        :0,
-
-                        codigoMasVendido:"-",
-
-                        cantidadMayor:0,
-
-                        codigoMasDinero:"-",
-
-                        dineroMayor:0
-
-                    });
+const totalVentas =
+Number(ventas.rows[0].total) || 0;
 
 
-                }
-            );
+
+const totalGastos =
+Number(gastos.rows[0].total) || 0;
 
 
-        }
-    );
+
+res.json({
+
+ventas:totalVentas,
+
+gastos:totalGastos,
+
+ganancia:totalVentas-totalGastos
+
+});
+
+
+
+}catch(error){
+
+
+console.log("ERROR RESUMEN:",error);
+
+
+res.status(500).json({
+
+error:error.message
+
+});
+
 
 }
+
+
+}
+// ===============================
+// RESUMEN SEMANA
+// ===============================
+
+
+async function resumenSemana(req,res){
+
+
+try{
+
+
+const hoy = new Date();
+
+
+
+const diaSemana = hoy.getDay() || 7;
+
+
+
+const lunes = new Date(hoy);
+
+
+lunes.setDate(
+    hoy.getDate() - (diaSemana - 1)
+);
+
+
+
+lunes.setHours(0,0,0,0);
+
+
+
+const domingo = new Date(lunes);
+
+
+domingo.setDate(
+    lunes.getDate()+6
+);
+
+
+
+const ventas = await db.query(
+
+`
+SELECT valor,fecha
+FROM ventas
+
+`
+
+);
+
+
+
+const gastos = await db.query(
+
+`
+SELECT valor,fecha
+FROM gastos
+
+`
+
+);
+
+
+
+let totalVentas = 0;
+
+let totalGastos = 0;
+
+
+
+
+function dentroSemana(fecha){
+
+
+const partes = fecha.split("/");
+
+
+if(partes.length!==3){
+
+return false;
+
+}
+
+
+
+const fechaRegistro = new Date(
+
+Number(partes[2]),
+
+Number(partes[1])-1,
+
+Number(partes[0])
+
+);
+
+
+
+return fechaRegistro >= lunes &&
+       fechaRegistro <= domingo;
+
+
+}
+
+
+
+
+ventas.rows.forEach(v=>{
+
+
+if(dentroSemana(v.fecha)){
+
+
+totalVentas += Number(v.valor) || 0;
+
+
+}
+
+
+});
+
+
+
+
+
+gastos.rows.forEach(g=>{
+
+
+if(dentroSemana(g.fecha)){
+
+
+totalGastos += Number(g.valor) || 0;
+
+
+}
+
+
+});
+
+
+
+
+
+res.json({
+
+ventas:totalVentas,
+
+gastos:totalGastos,
+
+ganancia:totalVentas-totalGastos
+
+});
+
+
+
+
+
+}catch(error){
+
+
+console.log("ERROR SEMANA:",error);
+
+
+
+res.status(500).json({
+
+error:error.message
+
+});
+
+
+}
+
+
+
+}
+
+
+
+
+
+
+
+
+// ===============================
+// RESUMEN MES ACTUAL
+// ===============================
+
+
+async function resumenMes(req,res){
+
+
+try{
+
+
+const hoy = new Date();
+
+
+const mes = hoy.getMonth()+1;
+
+
+const año = hoy.getFullYear();
+
+
+
+const ventas = await db.query(
+
+`
+SELECT valor,fecha
+FROM ventas
+`
+
+);
+
+
+
+const gastos = await db.query(
+
+`
+SELECT valor,fecha
+FROM gastos
+`
+
+);
+
+
+
+let totalVentas=0;
+
+let totalGastos=0;
+
+
+
+
+
+function perteneceMes(fecha){
+
+
+const partes=fecha.split("/");
+
+
+return (
+
+Number(partes[1])===mes &&
+
+Number(partes[2])===año
+
+);
+
+
+}
+
+
+
+
+
+ventas.rows.forEach(v=>{
+
+
+if(perteneceMes(v.fecha)){
+
+
+totalVentas += Number(v.valor)||0;
+
+
+}
+
+
+});
+
+
+
+
+
+gastos.rows.forEach(g=>{
+
+
+if(perteneceMes(g.fecha)){
+
+
+totalGastos += Number(g.valor)||0;
+
+
+}
+
+
+});
+
+
+
+
+
+res.json({
+
+ventas:totalVentas,
+
+gastos:totalGastos,
+
+ganancia:totalVentas-totalGastos
+
+});
+
+
+
+}catch(error){
+
+
+res.status(500).json({
+
+error:error.message
+
+});
+
+
+}
+
+
+}
+// ===============================
+// HISTORIAL
+// ===============================
+
+
+async function historial(req,res){
+
+
+try{
+
+
+const resultado = await db.query(
+
+`
+SELECT
+id,
+codigo,
+valor,
+pago,
+fecha,
+hora,
+'venta' AS tipo
+
+FROM ventas
+
+
+UNION ALL
+
+
+SELECT
+id,
+descripcion AS codigo,
+valor,
+'' AS pago,
+fecha,
+hora,
+'gasto' AS tipo
+
+FROM gastos
+
+
+ORDER BY id DESC
+
+`
+
+);
+
+
+
+res.json(resultado.rows);
+
+
+
+}catch(error){
+
+
+res.status(500).json({
+
+error:error.message
+
+});
+
+
+}
+
+
+}
+
+
+
+
+
+
+
+
+// ===============================
+// BUSCAR POR FECHA
+// ===============================
+
+
+async function buscarPorFecha(req,res){
+
+
+try{
+
+
+const partes=req.params.fecha.split("-");
+
+
+const fecha =
+
+`${Number(partes[2])}/${Number(partes[1])}/${Number(partes[0])}`;
+
+
+
+
+
+const resultado = await db.query(
+
+`
+SELECT
+id,
+codigo,
+valor,
+pago,
+fecha,
+hora,
+'venta' AS tipo
+
+FROM ventas
+
+WHERE fecha=$1
+
+
+
+UNION ALL
+
+
+
+SELECT
+id,
+descripcion AS codigo,
+valor,
+'' AS pago,
+fecha,
+hora,
+'gasto' AS tipo
+
+FROM gastos
+
+WHERE fecha=$1
+
+
+
+ORDER BY hora DESC
+
+`,
+
+[fecha]
+
+);
+
+
+
+res.json(resultado.rows);
+
+
+
+}catch(error){
+
+
+res.status(500).json({
+
+error:error.message
+
+});
+
+
+}
+
+
+}
+
+
+
+
+
+
+
+
+// ===============================
+// ESTADISTICAS
+// ===============================
+
+
+async function estadisticas(req,res){
+
+
+try{
+
+
+const ventas = await db.query(
+
+`
+SELECT *
+FROM ventas
+
+`
+
+);
+
+
+
+const gastos = await db.query(
+
+`
+SELECT *
+FROM gastos
+
+`
+
+);
+
+
+
+const hoy = new Date();
+
+
+const mes = hoy.getMonth()+1;
+
+const año = hoy.getFullYear();
+
+
+
+let ventasMes=[];
+
+let gastosMes=[];
+
+
+
+function mismoMes(fecha){
+
+
+const partes=fecha.split("/");
+
+
+return (
+
+Number(partes[1])===mes &&
+
+Number(partes[2])===año
+
+);
+
+
+}
+
+
+
+
+
+ventas.rows.forEach(v=>{
+
+if(mismoMes(v.fecha)){
+
+ventasMes.push(v);
+
+}
+
+});
+
+
+
+
+
+gastos.rows.forEach(g=>{
+
+if(mismoMes(g.fecha)){
+
+gastosMes.push(g);
+
+}
+
+});
+
+
+
+
+
+const totalVentas = ventasMes.reduce(
+
+(a,b)=>a+Number(b.valor||0),
+
+0
+
+);
+
+
+
+const totalGastos = gastosMes.reduce(
+
+(a,b)=>a+Number(b.valor||0),
+
+0
+
+);
+
+
+
+
+
+const promedioVenta = ventasMes.length
+
+? totalVentas/ventasMes.length
+
+:0;
+
+
+
+
+
+res.json({
+
+ventasMes:totalVentas,
+
+gastosMes:totalGastos,
+
+gananciaMes:totalVentas-totalGastos,
+
+numeroVentas:ventasMes.length,
+
+numeroGastos:gastosMes.length,
+
+promedioVenta,
+
+codigoMasVendido:"-",
+
+cantidadMayor:0,
+
+codigoMasDinero:"-",
+
+dineroMayor:0
+
+});
+
+
+
+
+
+}catch(error){
+
+
+res.status(500).json({
+
+error:error.message
+
+});
+
+
+}
+
+
+}
+
+
+
+
+
+
+
+
+// ===============================
+// ESTADISTICAS MES ESPECIFICO
+// ===============================
+
+
+async function estadisticasMes(req,res){
+
+
+try{
+
+
+const mes = Number(req.params.mes);
+
+const año = Number(req.params.anio);
+
+
+
+const ventas = await db.query(
+
+`
+SELECT *
+FROM ventas
+
+`
+
+);
+
+
+
+const gastos = await db.query(
+
+`
+SELECT *
+FROM gastos
+
+`
+
+);
+
+
+
+
+
+function pertenece(fecha){
+
+
+const partes=fecha.split("/");
+
+
+return (
+
+Number(partes[1])===mes &&
+
+Number(partes[2])===año
+
+);
+
+
+}
+
+
+
+
+
+const ventasMes = ventas.rows.filter(
+
+v=>pertenece(v.fecha)
+
+);
+
+
+
+const gastosMes = gastos.rows.filter(
+
+g=>pertenece(g.fecha)
+
+);
+
+
+
+
+
+const totalVentas = ventasMes.reduce(
+
+(a,b)=>a+Number(b.valor||0),
+
+0
+
+);
+
+
+
+const totalGastos = gastosMes.reduce(
+
+(a,b)=>a+Number(b.valor||0),
+
+0
+
+);
+
+
+
+
+
+res.json({
+
+ventas:totalVentas,
+
+gastos:totalGastos,
+
+ganancia:totalVentas-totalGastos,
+
+numeroVentas:ventasMes.length,
+
+numeroGastos:gastosMes.length,
+
+promedioVenta:
+
+ventasMes.length
+
+?
+
+totalVentas/ventasMes.length
+
+:
+
+0,
+
+
+codigoMasVendido:"-",
+
+cantidadMayor:0,
+
+codigoMasDinero:"-",
+
+dineroMayor:0
+
+});
+
+
+
+
+
+}catch(error){
+
+
+res.status(500).json({
+
+error:error.message
+
+});
+
+
+}
+
+
+}
+
+
+
+
 
 
 
 module.exports = {
 
-    guardarVenta,
 
-    obtenerVenta,
+guardarVenta,
 
-    actualizarVenta,
+obtenerVenta,
 
-    eliminarVenta,
+actualizarVenta,
 
-    totalVentasHoy,
+eliminarVenta,
 
-    resumenHoy,
+totalVentasHoy,
 
-    resumenSemana,
+resumenHoy,
 
-    resumenMes,
+resumenSemana,
 
-    historial,
+resumenMes,
 
-    buscarPorFecha,
+historial,
 
-    estadisticas,
+buscarPorFecha,
 
-    estadisticasMes
+estadisticas,
+
+estadisticasMes
+
 
 };
