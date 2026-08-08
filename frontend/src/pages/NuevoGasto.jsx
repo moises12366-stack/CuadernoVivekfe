@@ -9,122 +9,144 @@ export default function NuevoGasto() {
 const navigate = useNavigate();
 
 
-const [descripcion, setDescripcion] = useState("");
-const [valor, setValor] = useState("");
-const [guardando, setGuardando] = useState(false);
+const [descripcion,setDescripcion] = useState("");
+
+const [valor,setValor] = useState("");
+
+const [guardando,setGuardando] = useState(false);
+
+
 
 
 
 async function guardarGasto(){
 
 
-    if(descripcion.trim() === ""){
+if(descripcion.trim()===""){
 
-        alert("Escribe una descripción.");
+alert("Escribe una descripción.");
 
-        return;
+return;
 
-    }
+}
 
 
-    if(valor === "" || Number(valor) <= 0){
 
-        alert("Escribe un valor válido.");
+if(valor==="" || Number(valor)<=0){
 
-        return;
+alert("Escribe un valor válido.");
 
-    }
+return;
 
+}
 
 
-    setGuardando(true);
 
+setGuardando(true);
 
 
-    try{
 
+try{
 
-        const respuesta = await fetch(
 
-            "https://vivekfe-backend.onrender.com/gastos",
+const respuesta = await fetch(
 
-            {
+"https://vivekfe-backend.onrender.com/gastos",
 
-                method:"POST",
+{
 
-                headers:{
+method:"POST",
 
-                    "Content-Type":"application/json"
+headers:{
 
-                },
+"Content-Type":"application/json"
 
+},
 
-                body:JSON.stringify({
 
-                    descripcion: descripcion.trim(),
+body:JSON.stringify({
 
-                    valor: Number(valor)
+descripcion:descripcion.trim(),
 
-                })
+valor:Number(valor)
 
-            }
+})
 
-        );
 
+}
 
+);
 
-        const datos = await respuesta.json();
 
 
 
-        console.log("Respuesta servidor gasto:", datos);
+const datos = await respuesta.json();
 
 
 
-        if(!respuesta.ok){
+console.log("RESPUESTA GASTO:",datos);
 
-            throw new Error(datos.error || "Error desconocido");
 
-        }
 
+if(!respuesta.ok){
 
+throw new Error(
 
-        alert("Gasto guardado correctamente.");
+datos.detalle || datos.error || "No se pudo guardar"
 
+);
 
-        setDescripcion("");
+}
 
-        setValor("");
 
 
-        navigate("/");
 
+if(datos.ok!==true){
 
-    }
+throw new Error("El servidor no confirmó el guardado");
 
-    catch(error){
+}
 
 
-        console.error("ERROR GUARDANDO GASTO:", error);
 
+alert("Gasto guardado correctamente.");
 
-        alert(
 
-            "Error al guardar el gasto:\n" + error.message
 
-        );
+setDescripcion("");
 
+setValor("");
 
-    }
 
 
-    finally{
+navigate("/");
 
 
-        setGuardando(false);
 
 
-    }
+
+}catch(error){
+
+
+console.error("ERROR GASTO:",error);
+
+
+alert(
+
+"Error al guardar gasto:\n"+error.message
+
+);
+
+
+
+}finally{
+
+
+setGuardando(false);
+
+
+}
+
 
 
 }
@@ -132,16 +154,26 @@ async function guardarGasto(){
 
 
 
+
+
+
 return (
 
+
 <div className="contenedor">
+
 
 
 <h1>💸 Nuevo Gasto</h1>
 
 
 
-<label>Descripción</label>
+<label>
+
+Descripción
+
+</label>
+
 
 
 <input
@@ -159,7 +191,12 @@ placeholder="Ej: Compra de materas"
 
 
 
-<label>Valor</label>
+<label>
+
+Valor
+
+</label>
+
 
 
 <input
@@ -188,7 +225,6 @@ disabled={guardando}
 
 >
 
-
 {guardando ? "Guardando..." : "Guardar Gasto"}
 
 
@@ -208,11 +244,13 @@ onClick={()=>navigate("/")}
 
 ← Volver
 
+
 </button>
 
 
 
 </div>
+
 
 );
 
