@@ -3,271 +3,369 @@ import { useNavigate } from "react-router-dom";
 
 export default function Estadisticas() {
 
-    const navigate = useNavigate();
+const navigate = useNavigate();
 
-    const [hoy, setHoy] = useState({
-        ventas: 0,
-        gastos: 0,
-        ganancia: 0
-    });
 
-    const [semana, setSemana] = useState({
-        ventas: 0,
-        gastos: 0,
-        ganancia: 0
-    });
+const [hoy, setHoy] = useState({
+    ventas: 0,
+    gastos: 0,
+    ganancia: 0
+});
 
-    const [datos, setDatos] = useState({
-        ventasMes: 0,
-        gastosMes: 0,
-        gananciaMes: 0,
-        numeroVentas: 0,
-        numeroGastos: 0,
-        promedioVenta: 0,
-        codigoMasVendido: "-",
-        cantidadMayor: 0,
-        codigoMasDinero: "-",
-        dineroMayor: 0
-    });
 
-    async function cargar() {
+const [semana, setSemana] = useState({
+    ventas: 0,
+    gastos: 0,
+    ganancia: 0
+});
 
-        try {
 
-            const [rHoy, rSemana, rDatos] = await Promise.all([
+const [datos, setDatos] = useState({
+    ventasMes: 0,
+    gastosMes: 0,
+    gananciaMes: 0,
+    numeroVentas: 0,
+    numeroGastos: 0,
+    promedioVenta: 0,
+    codigoMasVendido: "-",
+    cantidadMayor: 0,
+    codigoMasDinero: "-",
+    dineroMayor: 0
+});
 
-                fetch("https://vivekfe-backend.onrender.com/resumen/hoy"),
 
-                fetch("https://vivekfe-backend.onrender.com/resumen/semana"),
+async function cargar() {
 
-                fetch("https://vivekfe-backend.onrender.com/estadisticas")
+    try {
 
-            ]);
+        const [rHoy, rSemana, rDatos] = await Promise.all([
 
-            setHoy(await rHoy.json());
+            fetch("https://vivekfe-backend.onrender.com/resumen/hoy"),
 
-            setSemana(await rSemana.json());
+            fetch("https://vivekfe-backend.onrender.com/resumen/semana"),
 
-            setDatos(await rDatos.json());
+            fetch("https://vivekfe-backend.onrender.com/estadisticas")
 
-        } catch (error) {
+        ]);
 
-            console.log(error);
 
-        }
+        const datosHoy = await rHoy.json();
+
+        const datosSemana = await rSemana.json();
+
+        const datosEstadisticas = await rDatos.json();
+
+
+
+        setHoy({
+
+            ventas: Number(datosHoy.ventas) || 0,
+
+            gastos: Number(datosHoy.gastos) || 0,
+
+            ganancia: Number(datosHoy.ganancia) || 0
+
+        });
+
+
+
+        setSemana({
+
+            ventas: Number(datosSemana.ventas) || 0,
+
+            gastos: Number(datosSemana.gastos) || 0,
+
+            ganancia: Number(datosSemana.ganancia) || 0
+
+        });
+
+
+
+        setDatos({
+
+            ventasMes: Number(datosEstadisticas.ventasMes) || 0,
+
+            gastosMes: Number(datosEstadisticas.gastosMes) || 0,
+
+            gananciaMes: Number(datosEstadisticas.gananciaMes) || 0,
+
+            numeroVentas: Number(datosEstadisticas.numeroVentas) || 0,
+
+            numeroGastos: Number(datosEstadisticas.numeroGastos) || 0,
+
+            promedioVenta: Number(datosEstadisticas.promedioVenta) || 0,
+
+            codigoMasVendido: datosEstadisticas.codigoMasVendido || "-",
+
+            cantidadMayor: Number(datosEstadisticas.cantidadMayor) || 0,
+
+            codigoMasDinero: datosEstadisticas.codigoMasDinero || "-",
+
+            dineroMayor: Number(datosEstadisticas.dineroMayor) || 0
+
+        });
+
+
+    } catch (error) {
+
+        console.log(error);
 
     }
 
-    useEffect(() => {
+}
 
-        cargar();
 
-    }, []);
+useEffect(() => {
 
-    function tarjeta(titulo, ventas, gastos, ganancia) {
+    cargar();
 
-        return (
-
-            <div
-                style={{
-                    background: "#fff",
-                    borderRadius: "12px",
-                    padding: "20px",
-                    marginBottom: "15px",
-                    border: "1px solid #ddd"
-                }}
-            >
-
-                <h2>{titulo}</h2>
-
-                <p>
-                    <strong>💰 Ventas</strong><br />
-                    ${Number(ventas).toLocaleString("es-CO")}
-                </p>
-
-                <p>
-                    <strong>💸 Gastos</strong><br />
-                    ${Number(gastos).toLocaleString("es-CO")}
-                </p>
-
-                <p>
-                    <strong>📈 Ganancia</strong><br />
-                    ${Number(ganancia).toLocaleString("es-CO")}
-                </p>
-
-            </div>
-
-        );
-
-    }
+}, []);
+function tarjeta(titulo, ventas, gastos, ganancia) {
 
     return (
 
         <div
             style={{
-                maxWidth: "700px",
-                margin: "auto",
-                padding: "20px"
+                background: "#fff",
+                borderRadius: "12px",
+                padding: "20px",
+                marginBottom: "15px",
+                border: "1px solid #ddd"
             }}
         >
 
-            <h1>📊 Estadísticas</h1>
+            <h2>{titulo}</h2>
 
-            {tarjeta(
-                "📅 Hoy",
-                hoy.ventas,
-                hoy.gastos,
-                hoy.ganancia
-            )}
 
-            {tarjeta(
-                "📆 Semana",
-                semana.ventas,
-                semana.gastos,
-                semana.ganancia
-            )}
+            <p>
+                <strong>💰 Ventas</strong>
+                <br />
 
-            {tarjeta(
-                "🗓 Mes",
-                datos.ventasMes,
-                datos.gastosMes,
-                datos.gananciaMes
-            )}
-                        <div
-                style={{
-                    background: "#fff",
-                    borderRadius: "12px",
-                    padding: "20px",
-                    marginBottom: "15px",
-                    border: "1px solid #ddd"
-                }}
-            >
+                ${Number(ventas || 0).toLocaleString("es-CO")}
 
-                <h2>📈 Información del mes</h2>
+            </p>
 
-                <p>
 
-                    <strong>🧾 Ventas realizadas</strong>
+            <p>
+                <strong>💸 Gastos</strong>
+                <br />
 
-                    <br />
+                ${Number(gastos || 0).toLocaleString("es-CO")}
 
-                    {datos.numeroVentas}
+            </p>
 
-                </p>
 
-                <p>
+            <p>
+                <strong>📈 Ganancia</strong>
+                <br />
 
-                    <strong>💸 Gastos registrados</strong>
+                ${Number(ganancia || 0).toLocaleString("es-CO")}
 
-                    <br />
+            </p>
 
-                    {datos.numeroGastos}
 
-                </p>
+        </div>
 
-                <p>
+    );
 
-                    <strong>💵 Venta promedio</strong>
+}
 
-                    <br />
 
-                    ${Number(datos.promedioVenta).toLocaleString("es-CO")}
 
-                </p>
+return (
 
-                <p>
+    <div
+        style={{
+            maxWidth: "700px",
+            margin: "auto",
+            padding: "20px"
+        }}
+    >
 
-                    <strong>🏆 Código más vendido</strong>
 
-                    <br />
+        <h1>📊 Estadísticas</h1>
 
-                    {datos.codigoMasVendido} ({datos.cantidadMayor} ventas)
 
-                </p>
 
-                <p>
+        {tarjeta(
+            "📅 Hoy",
+            hoy.ventas,
+            hoy.gastos,
+            hoy.ganancia
+        )}
 
-                    <strong>💰 Código que más dinero produjo</strong>
 
-                    <br />
 
-                    {datos.codigoMasDinero}
+        {tarjeta(
+            "📆 Semana",
+            semana.ventas,
+            semana.gastos,
+            semana.ganancia
+        )}
 
-                </p>
 
-                <p>
 
-                    <strong>Total vendido por ese código</strong>
+        {tarjeta(
+            "🗓 Mes",
+            datos.ventasMes,
+            datos.gastosMes,
+            datos.gananciaMes
+        )}
 
-                    <br />
 
-                    ${Number(datos.dineroMayor).toLocaleString("es-CO")}
 
-                </p>
 
-                <button
+        <div
+            style={{
+                background: "#fff",
+                borderRadius: "12px",
+                padding: "20px",
+                marginBottom: "15px",
+                border: "1px solid #ddd"
+            }}
+        >
 
-                    onClick={() => navigate("/meses")}
 
-                    style={{
+            <h2>📈 Información del mes</h2>
 
-                        width: "100%",
 
-                        marginTop: "20px",
+            <p>
+                <strong>🧾 Ventas realizadas</strong>
+                <br />
 
-                        padding: "12px",
+                {datos.numeroVentas || 0}
 
-                        background: "#1976d2",
+            </p>
 
-                        color: "white",
 
-                        border: "none",
+            <p>
+                <strong>💸 Gastos registrados</strong>
+                <br />
 
-                        borderRadius: "8px",
+                {datos.numeroGastos || 0}
 
-                        cursor: "pointer"
+            </p>
 
-                    }}
 
-                >
 
-                    📅 Consultar meses anteriores
+            <p>
+                <strong>💵 Venta promedio</strong>
+                <br />
 
-                </button>
+                ${Number(datos.promedioVenta || 0).toLocaleString("es-CO")}
 
-            </div>
-                        <button
+            </p>
 
-                onClick={() => navigate("/")}
+
+
+            <p>
+                <strong>🏆 Código más vendido</strong>
+                <br />
+
+                {datos.codigoMasVendido || "-"}
+
+                {" ("}
+
+                {datos.cantidadMayor || 0}
+
+                {" ventas)"}
+
+            </p>
+
+
+
+
+            <p>
+                <strong>💰 Código que más dinero produjo</strong>
+                <br />
+
+                {datos.codigoMasDinero || "-"}
+
+            </p>
+
+
+
+            <p>
+                <strong>Total vendido por ese código</strong>
+                <br />
+
+                ${Number(datos.dineroMayor || 0).toLocaleString("es-CO")}
+
+            </p>
+
+
+
+
+            <button
+
+                onClick={() => navigate("/meses")}
 
                 style={{
 
                     width: "100%",
 
-                    padding: "15px",
+                    marginTop: "20px",
 
-                    background: "#2e7d32",
+                    padding: "12px",
+
+                    background: "#1976d2",
 
                     color: "white",
 
                     border: "none",
 
-                    borderRadius: "10px",
+                    borderRadius: "8px",
 
-                    cursor: "pointer",
-
-                    fontSize: "16px"
+                    cursor: "pointer"
 
                 }}
 
             >
 
-                ⬅ Volver
+                📅 Consultar meses anteriores
 
             </button>
 
+
         </div>
 
-    );
+
+
+
+
+        <button
+
+            onClick={() => navigate("/")}
+
+            style={{
+
+                width: "100%",
+
+                padding: "15px",
+
+                background: "#2e7d32",
+
+                color: "white",
+
+                border: "none",
+
+                borderRadius: "10px",
+
+                cursor: "pointer",
+
+                fontSize: "16px"
+
+            }}
+
+        >
+
+            ⬅ Volver
+
+        </button>
+
+
+    </div>
+
+);
 
 }
