@@ -51,7 +51,7 @@ try{
 
 const respuesta = await fetch(
 
-"https://vivekfe-backend.onrender.com/gastos",
+"https://vivekfe-backend-mxhh.onrender.com/gastos",
 
 {
 
