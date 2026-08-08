@@ -3,176 +3,198 @@ import { useNavigate } from "react-router-dom";
 
 export default function ConsultarMes() {
 
-    const navigate = useNavigate();
 
-    const [mes, setMes] = useState(new Date().getMonth() + 1);
+const navigate = useNavigate();
 
-    const [año, setAño] = useState(new Date().getFullYear());
 
-    return (
+const [mes, setMes] = useState(new Date().getMonth() + 1);
 
-        <div
-            style={{
-                maxWidth: "600px",
-                margin: "auto",
-                padding: "20px"
-            }}
-        >
+const [año, setAño] = useState(new Date().getFullYear());
 
-            <h1>📅 Consultar cierre mensual</h1>
 
-            <p>
 
-                Selecciona el año y el mes que deseas consultar.
+return (
 
-            </p>
+<div
+style={{
+    maxWidth:"600px",
+    margin:"auto",
+    padding:"20px"
+}}
+>
 
-            <label>
 
-                <strong>Año</strong>
+<h1>📅 Consultar cierre mensual</h1>
 
-            </label>
 
-            <select
+<p>
+Selecciona el año y el mes que deseas consultar.
+</p>
 
-                value={año}
 
-                onChange={(e)=>setAño(e.target.value)}
 
-                style={{
-                    width:"100%",
-                    padding:"12px",
-                    marginTop:"5px",
-                    marginBottom:"20px"
-                }}
+<label>
 
-            >
+<strong>Año</strong>
 
-                <option value="2026">2026</option>
+</label>
 
-                <option value="2027">2027</option>
 
-                <option value="2028">2028</option>
+<select
 
-                <option value="2029">2029</option>
+value={año}
 
-                <option value="2030">2030</option>
+onChange={(e)=>setAño(Number(e.target.value))}
 
-            </select>
+style={{
+    width:"100%",
+    padding:"12px",
+    marginTop:"5px",
+    marginBottom:"20px"
+}}
 
-            <label>
+>
 
-                <strong>Mes</strong>
+<option value="2026">2026</option>
 
-            </label>
+<option value="2027">2027</option>
 
-            <select
+<option value="2028">2028</option>
 
-                value={mes}
+<option value="2029">2029</option>
 
-                onChange={(e)=>setMes(e.target.value)}
+<option value="2030">2030</option>
 
-                style={{
-                    width:"100%",
-                    padding:"12px",
-                    marginTop:"5px",
-                    marginBottom:"20px"
-                }}
+</select>
 
-            >
 
-                <option value="1">Enero</option>
 
-                <option value="2">Febrero</option>
 
-                <option value="3">Marzo</option>
+<label>
 
-                <option value="4">Abril</option>
+<strong>Mes</strong>
 
-                <option value="5">Mayo</option>
+</label>
 
-                <option value="6">Junio</option>
 
-                <option value="7">Julio</option>
 
-                <option value="8">Agosto</option>
+<select
 
-                <option value="9">Septiembre</option>
+value={mes}
 
-                <option value="10">Octubre</option>
+onChange={(e)=>setMes(Number(e.target.value))}
 
-                <option value="11">Noviembre</option>
+style={{
+    width:"100%",
+    padding:"12px",
+    marginTop:"5px",
+    marginBottom:"20px"
+}}
 
-                <option value="12">Diciembre</option>
+>
 
-            </select>
-                        <button
 
-                onClick={() =>
+<option value="1">Enero</option>
 
-                    navigate(`/consulta-mes/${mes}/${año}`)
+<option value="2">Febrero</option>
 
-                }
+<option value="3">Marzo</option>
 
-                style={{
+<option value="4">Abril</option>
 
-                    width: "100%",
+<option value="5">Mayo</option>
 
-                    padding: "15px",
+<option value="6">Junio</option>
 
-                    background: "#1976d2",
+<option value="7">Julio</option>
 
-                    color: "white",
+<option value="8">Agosto</option>
 
-                    border: "none",
+<option value="9">Septiembre</option>
 
-                    borderRadius: "10px",
+<option value="10">Octubre</option>
 
-                    cursor: "pointer",
+<option value="11">Noviembre</option>
 
-                    fontSize: "16px",
+<option value="12">Diciembre</option>
 
-                    marginBottom: "15px"
 
-                }}
+</select>
 
-            >
 
-                🔍 Consultar
 
-            </button>
 
-            <button
 
-                onClick={() => navigate("/estadisticas")}
+<button
 
-                style={{
+onClick={()=>navigate(`/consulta-mes/${mes}/${año}`)}
 
-                    width: "100%",
+style={{
 
-                    padding: "15px",
+    width:"100%",
 
-                    background: "#2e7d32",
+    padding:"15px",
 
-                    color: "white",
+    background:"#1976d2",
 
-                    border: "none",
+    color:"white",
 
-                    borderRadius: "10px",
+    border:"none",
 
-                    cursor: "pointer",
+    borderRadius:"10px",
 
-                    fontSize: "16px"
+    cursor:"pointer",
 
-                }}
+    fontSize:"16px",
 
-            >
+    marginBottom:"15px"
 
-                ⬅ Volver
+}}
 
-            </button>
-                    </div>
+>
 
-    );
+🔍 Consultar
+
+</button>
+
+
+
+
+
+<button
+
+onClick={()=>navigate("/estadisticas")}
+
+style={{
+
+    width:"100%",
+
+    padding:"15px",
+
+    background:"#2e7d32",
+
+    color:"white",
+
+    border:"none",
+
+    borderRadius:"10px",
+
+    cursor:"pointer",
+
+    fontSize:"16px"
+
+}}
+
+>
+
+⬅ Volver
+
+</button>
+
+
+
+</div>
+
+);
 
 }

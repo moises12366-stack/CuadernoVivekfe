@@ -1,291 +1,388 @@
-import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 
 export default function ResultadoMes() {
 
 
-    const navigate = useNavigate();
+const navigate = useNavigate();
 
-    const parametros = useParams();
+
+const parametros = useParams();
+
 
 const mes = parametros.mes;
+
 const anio = parametros.anio || parametros.año;
 
 
-    const [datos, setDatos] = useState(null);
+
+const [datos,setDatos] = useState(null);
 
 
 
-    useEffect(()=>{
 
-    async function cargar(){
+useEffect(()=>{
 
-        try{
 
-            const respuesta = await fetch(
-                `https://vivekfe-backend.onrender.com/estadisticas/mes/${mes}/${anio}`
-            );
+async function cargar(){
 
-            const json = await respuesta.json();
 
-            console.log("DATOS MES:", json);
+    try{
 
-            setDatos(json);
 
-        }catch(error){
+        const respuesta = await fetch(
 
-            console.log(error);
+            `https://vivekfe-backend.onrender.com/estadisticas/mes/${mes}/${anio}`
 
-        }
+        );
+
+
+        const json = await respuesta.json();
+
+
+        console.log("DATOS MES:",json);
+
+
+
+        setDatos({
+
+            ventas: Number(json.ventas) || 0,
+
+            gastos: Number(json.gastos) || 0,
+
+            ganancia: Number(json.ganancia) || 0,
+
+
+            numeroVentas: Number(json.numeroVentas) || 0,
+
+            numeroGastos: Number(json.numeroGastos) || 0,
+
+
+            promedioVenta: Number(json.promedioVenta) || 0,
+
+
+            codigoMasVendido: json.codigoMasVendido || "-",
+
+
+            codigoMasDinero: json.codigoMasDinero || "-"
+
+        });
+
+
+
+    }catch(error){
+
+
+        console.log(error);
+
+
+
+        setDatos({
+
+            ventas:0,
+
+            gastos:0,
+
+            ganancia:0,
+
+            numeroVentas:0,
+
+            numeroGastos:0,
+
+            promedioVenta:0,
+
+            codigoMasVendido:"-",
+
+            codigoMasDinero:"-"
+
+        });
+
 
     }
 
-    cargar();
+
+}
+
+
+cargar();
+
 
 },[mes,anio]);
 
 
 
-    if(!datos){
 
 
-        return (
+if(!datos){
 
-            <div
-                style={{
-                    padding:"30px",
-                    textAlign:"center"
-                }}
-            >
 
-                Cargando información...
+return (
 
-            </div>
+<div
 
-        );
+style={{
 
-    }
+padding:"30px",
 
+textAlign:"center"
 
+}}
 
-    return (
+>
 
-        <div
+Cargando información...
 
-            style={{
+</div>
 
-                maxWidth:"600px",
+);
 
-                margin:"auto",
 
-                padding:"20px"
+}
 
-            }}
 
-        >
 
 
-            <h1>
 
-                📅 Cierre {mes}/{anio}
+return (
 
-            </h1>
 
+<div
 
+style={{
 
-            <div
-                style={{
+maxWidth:"600px",
 
-                    background:"#fff",
+margin:"auto",
 
-                    padding:"20px",
+padding:"20px"
 
-                    borderRadius:"10px",
+}}
 
-                    marginBottom:"20px"
+>
 
-                }}
-            >
 
-                <h2>💰 Resultado</h2>
 
+<h1>
 
-                <p>
+📅 Cierre {mes}/{anio}
 
-                    Ventas:
+</h1>
 
-                    <br/>
 
-                    ${Number(datos.ventas).toLocaleString("es-CO")}
 
-                </p>
 
+<div
 
+style={{
 
-                <p>
+background:"#fff",
 
-                    Gastos:
+padding:"20px",
 
-                    <br/>
+borderRadius:"10px",
 
-                    ${Number(datos.gastos).toLocaleString("es-CO")}
+marginBottom:"20px"
 
-                </p>
+}}
 
+>
 
 
-                <p>
+<h2>💰 Resultado</h2>
 
-                    Ganancia final:
 
-                    <br/>
 
-                    ${Number(datos.ganancia).toLocaleString("es-CO")}
+<p>
 
-                </p>
+Ventas:
 
+<br/>
 
-            </div>
+${datos.ventas.toLocaleString("es-CO")}
 
+</p>
 
 
-            <div
-                style={{
 
-                    background:"#fff",
+<p>
 
-                    padding:"20px",
+Gastos:
 
-                    borderRadius:"10px"
+<br/>
 
-                }}
-            >
+${datos.gastos.toLocaleString("es-CO")}
 
+</p>
 
-                <h2>📊 Detalles</h2>
 
 
-                <p>
+<p>
 
-                    🧾 Ventas realizadas:
+Ganancia final:
 
-                    <br/>
+<br/>
 
-                    {datos.numeroVentas}
+${datos.ganancia.toLocaleString("es-CO")}
 
-                </p>
+</p>
 
 
-                <p>
+</div>
 
-                    💸 Gastos registrados:
 
-                    <br/>
 
-                    {datos.numeroGastos}
 
-                </p>
 
+<div
 
-                <p>
+style={{
 
-                    💵 Promedio venta:
+background:"#fff",
 
-                    <br/>
+padding:"20px",
 
-                    ${Number(datos.promedioVenta).toLocaleString("es-CO")}
+borderRadius:"10px"
 
-                </p>
+}}
 
+>
 
-                <p>
 
-                    🏆 Código más vendido:
+<h2>📊 Detalles</h2>
 
-                    <br/>
 
-                    {datos.codigoMasVendido}
 
-                </p>
+<p>
 
+🧾 Ventas realizadas:
 
-                <p>
+<br/>
 
-                    💰 Código que más dinero produjo:
+{datos.numeroVentas}
 
-                    <br/>
+</p>
 
-                    {datos.codigoMasDinero}
 
-                </p>
 
+<p>
 
-            </div>
+💸 Gastos registrados:
 
+<br/>
 
+{datos.numeroGastos}
 
-            <button
+</p>
 
-                onClick={()=>navigate("/meses")}
 
-                style={{
 
-                    width:"100%",
+<p>
 
-                    padding:"15px",
+💵 Promedio venta:
 
-                    marginTop:"20px",
+<br/>
 
-                    background:"#1976d2",
+${datos.promedioVenta.toLocaleString("es-CO")}
 
-                    color:"white",
+</p>
 
-                    border:"none",
 
-                    borderRadius:"10px"
 
-                }}
+<p>
 
-            >
+🏆 Código más vendido:
 
-                📅 Consultar otro mes
+<br/>
 
-            </button>
+{datos.codigoMasVendido}
 
+</p>
 
-            <button
 
-                onClick={()=>navigate("/")}
 
-                style={{
+<p>
 
-                    width:"100%",
+💰 Código que más dinero produjo:
 
-                    padding:"15px",
+<br/>
 
-                    marginTop:"10px",
+{datos.codigoMasDinero}
 
-                    background:"#2e7d32",
+</p>
 
-                    color:"white",
 
-                    border:"none",
+</div>
 
-                    borderRadius:"10px"
 
-                }}
 
-            >
 
-                ⬅ Inicio
 
-            </button>
+<button
 
+onClick={()=>navigate("/meses")}
 
+style={{
 
-        </div>
+width:"100%",
 
-    );
+padding:"15px",
+
+marginTop:"20px",
+
+background:"#1976d2",
+
+color:"white",
+
+border:"none",
+
+borderRadius:"10px"
+
+}}
+
+>
+
+📅 Consultar otro mes
+
+</button>
+
+
+
+
+<button
+
+onClick={()=>navigate("/")}
+
+style={{
+
+width:"100%",
+
+padding:"15px",
+
+marginTop:"10px",
+
+background:"#2e7d32",
+
+color:"white",
+
+border:"none",
+
+borderRadius:"10px"
+
+}}
+
+>
+
+⬅ Inicio
+
+</button>
+
+
+
+</div>
+
+
+);
+
 
 }
