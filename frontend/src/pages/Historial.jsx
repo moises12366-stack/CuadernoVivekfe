@@ -9,12 +9,13 @@ const [datos,setDatos] = useState([]);
 
 const [fechaBuscar,setFechaBuscar] = useState("");
 
+const CLAVE = "8311";
+
 
 
 async function cargar(fecha=""){
 
 try{
-
 
 const ruta = fecha
 
@@ -30,7 +31,7 @@ const historial = await respuesta.json();
 
 
 
-console.log("HISTORIAL:",historial);
+console.log("HISTORIAL:", historial);
 
 
 
@@ -54,7 +55,6 @@ setDatos([]);
 
 }
 
-
 }
 
 
@@ -68,7 +68,31 @@ cargar();
 
 
 
+function pedirClave(){
+
+const clave = window.prompt(
+"Ingrese clave administrativa:"
+);
+
+
+return clave === CLAVE;
+
+}
+
+
+
+
 async function eliminar(item){
+
+
+if(!pedirClave()){
+
+alert("Clave incorrecta");
+
+return;
+
+}
+
 
 
 const ruta = item.tipo==="venta"
@@ -102,8 +126,28 @@ cargar();
 
 
 
-function hoy(){
+function editar(item){
 
+
+if(!pedirClave()){
+
+alert("Clave incorrecta");
+
+return;
+
+}
+
+
+
+navigate(`/editar/${item.tipo}/${item.id}`);
+
+
+}
+
+
+
+
+function hoy(){
 
 const ahora = new Date();
 
@@ -117,7 +161,6 @@ const fecha =
 setFechaBuscar(fecha);
 
 cargar(fecha);
-
 
 }
 
@@ -309,11 +352,7 @@ item.tipo==="venta"
 
 <br/>
 
-{
-
-item.codigo || "-"
-
-}
+{item.codigo || "-"}
 
 </p>
 
@@ -325,9 +364,10 @@ item.codigo || "-"
 
 <br/>
 
-${Number(item.valor||0).toLocaleString("es-CO")}
+${Number(item.valor || 0).toLocaleString("es-CO")}
 
 </p>
+
 
 
 
@@ -348,6 +388,7 @@ item.tipo==="venta" &&
 
 
 
+
 <p>
 
 {item.fecha}
@@ -361,16 +402,23 @@ item.tipo==="venta" &&
 
 
 
+
 <button
 
-onClick={()=>navigate(`/editar/${item.tipo}/${item.id}`)}
+onClick={()=>editar(item)}
 
 style={{
+
 background:"#1976d2",
+
 color:"white",
+
 border:"none",
+
 padding:"10px",
+
 borderRadius:"8px"
+
 }}
 
 >
@@ -381,17 +429,25 @@ borderRadius:"8px"
 
 
 
+
 <button
 
 onClick={()=>eliminar(item)}
 
 style={{
+
 background:"#d32f2f",
+
 color:"white",
+
 border:"none",
+
 padding:"10px",
+
 borderRadius:"8px",
+
 marginLeft:"10px"
+
 }}
 
 >
