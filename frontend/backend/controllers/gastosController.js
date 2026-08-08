@@ -1,16 +1,34 @@
 const db = require("../database");
 
 
-// ===============================
+function obtenerFecha(){
+
+    const ahora = new Date();
+
+    const dia = String(ahora.getDate()).padStart(2,"0");
+    const mes = String(ahora.getMonth()+1).padStart(2,"0");
+    const año = ahora.getFullYear();
+
+    return `${dia}/${mes}/${año}`;
+
+}
+
+
+function obtenerHora(){
+
+    return new Date().toLocaleTimeString("es-CO");
+
+}
+
+
+
 // GUARDAR GASTO
-// ===============================
 
 async function guardarGasto(req,res){
 
-    console.log("DATOS RECIBIDOS GASTO:", req.body);
-
-
     try{
+
+        console.log("GASTO RECIBIDO:", req.body);
 
 
         const {descripcion, valor} = req.body;
@@ -19,22 +37,10 @@ async function guardarGasto(req,res){
         if(!descripcion || !valor){
 
             return res.status(400).json({
-
-                error:"Faltan datos del gasto"
-
+                error:"Datos incompletos"
             });
 
         }
-
-
-
-        const ahora = new Date();
-
-
-        const fecha = ahora.toLocaleDateString("es-CO");
-
-        const hora = ahora.toLocaleTimeString("es-CO");
-
 
 
         const resultado = await db.query(
@@ -42,10 +48,10 @@ async function guardarGasto(req,res){
             `
             INSERT INTO gastos
             (
-                descripcion,
-                valor,
-                fecha,
-                hora
+            descripcion,
+            valor,
+            fecha,
+            hora
             )
 
             VALUES
@@ -54,31 +60,20 @@ async function guardarGasto(req,res){
             RETURNING *
             `,
 
-
             [
-
-                descripcion.trim(),
-
+                descripcion,
                 Number(valor),
-
-                fecha,
-
-                hora
-
+                obtenerFecha(),
+                obtenerHora()
             ]
 
         );
 
 
-
-        console.log(
-            "GASTO GUARDADO:",
-            resultado.rows[0]
-        );
+        console.log("GASTO GUARDADO:", resultado.rows[0]);
 
 
-
-        return res.json({
+        res.json({
 
             ok:true,
 
@@ -87,45 +82,29 @@ async function guardarGasto(req,res){
         });
 
 
-
     }catch(error){
 
-
-        console.log(
-            "ERROR GUARDANDO GASTO:",
-            error
-        );
+        console.log("ERROR GUARDANDO GASTO:",error);
 
 
-
-        return res.status(500).json({
+        res.status(500).json({
 
             error:"Error guardando gasto",
-
             detalle:error.message
 
         });
 
-
     }
-
 
 }
 
 
 
-
-
-// ===============================
 // OBTENER GASTO
-// ===============================
-
 
 async function obtenerGasto(req,res){
 
-
     try{
-
 
         const resultado = await db.query(
 
@@ -135,56 +114,33 @@ async function obtenerGasto(req,res){
             WHERE id=$1
             `,
 
-            [
-
-                req.params.id
-
-            ]
+            [req.params.id]
 
         );
 
 
-
-        res.json(
-
-            resultado.rows[0] || null
-
-        );
-
+        res.json(resultado.rows[0] || null);
 
 
     }catch(error){
 
-
         res.status(500).json({
-
             error:error.message
-
         });
 
-
     }
-
 
 }
 
 
 
-
-
-// ===============================
-// ACTUALIZAR GASTO
-// ===============================
-
+// ACTUALIZAR
 
 async function actualizarGasto(req,res){
 
-
     try{
 
-
         const {descripcion,valor}=req.body;
-
 
 
         await db.query(
@@ -193,60 +149,40 @@ async function actualizarGasto(req,res){
             UPDATE gastos
 
             SET descripcion=$1,
-                valor=$2
+            valor=$2
 
             WHERE id=$3
-
             `,
 
             [
-
                 descripcion,
-
                 Number(valor),
-
                 req.params.id
-
             ]
 
         );
 
 
-
         res.json({
-
             ok:true
-
         });
-
 
 
     }catch(error){
 
-
         res.status(500).json({
-
             error:error.message
-
         });
 
-
     }
-
 
 }
 
 
 
-
-
-// ===============================
-// ELIMINAR GASTO
-// ===============================
-
+// ELIMINAR
 
 async function eliminarGasto(req,res){
-
 
     try{
 
@@ -258,119 +194,72 @@ async function eliminarGasto(req,res){
             WHERE id=$1
             `,
 
-
             [
-
                 req.params.id
-
             ]
 
         );
 
 
-
         res.json({
-
             ok:true
-
         });
-
 
 
     }catch(error){
 
-
         res.status(500).json({
-
             error:error.message
-
         });
 
-
     }
-
 
 }
 
 
 
-
-
-// ===============================
-// TOTAL GASTOS HOY
-// ===============================
-
+// TOTAL HOY
 
 async function totalGastosHoy(req,res){
 
-
     try{
-
-
-        const hoy = new Date().toLocaleDateString("es-CO");
-
 
 
         const resultado = await db.query(
 
             `
             SELECT COALESCE(SUM(valor),0) AS total
-
             FROM gastos
-
-            WHERE fecha=$1
-
-            `,
-
-
-            [
-
-                hoy
-
-            ]
+            `
 
         );
 
 
-
         res.json({
 
-            total:Number(resultado.rows[0].total) || 0
+            total:Number(resultado.rows[0].total)||0
 
         });
-
 
 
     }catch(error){
 
-
         res.status(500).json({
-
             error:error.message
-
         });
 
-
     }
-
 
 }
 
 
 
+module.exports={
 
-module.exports = {
-
-
-    guardarGasto,
-
-    obtenerGasto,
-
-    actualizarGasto,
-
-    totalGastosHoy,
-
-    eliminarGasto
-
+guardarGasto,
+obtenerGasto,
+actualizarGasto,
+totalGastosHoy,
+eliminarGasto
 
 };
