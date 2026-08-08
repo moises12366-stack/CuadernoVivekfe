@@ -117,21 +117,16 @@ cargar(fechaBuscar);
 
 function hoy(){
 
+const ahora = new Date();
 
-const ahora=new Date();
+const fecha =
 
-
-const fecha=
-
-`${ahora.getFullYear()}-${String(ahora.getMonth()+1).padStart(2,"0")}-${String(ahora.getDate()).padStart(2,"0")}`;
-
+`${String(ahora.getDate()).padStart(2,"0")}/${String(ahora.getMonth()+1).padStart(2,"0")}/${ahora.getFullYear()}`;
 
 
 setFechaBuscar(fecha);
 
-
 cargar(fecha);
-
 
 }
 
@@ -164,19 +159,16 @@ flexWrap:"wrap"
 
 
 <input
-
-type="date"
-
+type="text"
 value={fechaBuscar}
-
 onChange={(e)=>setFechaBuscar(e.target.value)}
-
+placeholder="Ej: 08/08/2026"
 style={{
 flex:1,
 padding:"10px"
 }}
-
 />
+
 
 
 
