@@ -1,12 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-
-export default function Historial() {
-
+export default function Historial(){
 
 const navigate = useNavigate();
-
 
 const [datos,setDatos] = useState([]);
 
@@ -14,9 +11,7 @@ const [fechaBuscar,setFechaBuscar] = useState("");
 
 
 
-
 async function cargar(fecha=""){
-
 
 try{
 
@@ -31,41 +26,36 @@ const ruta = fecha
 
 const respuesta = await fetch(ruta);
 
-
 const historial = await respuesta.json();
 
 
 
-console.log("HISTORIAL RECIBIDO:", historial);
+console.log("HISTORIAL:",historial);
 
 
 
-if(Array.isArray(historial)){
+setDatos(
 
-    setDatos(historial);
+Array.isArray(historial)
 
-}else{
+? historial
 
-    setDatos([]);
+: []
 
-}
+);
 
 
 
 }catch(error){
 
-
-console.log("ERROR HISTORIAL:",error);
+console.log(error);
 
 setDatos([]);
 
-
 }
 
 
 }
-
-
 
 
 
@@ -78,17 +68,18 @@ cargar();
 
 
 
-
-
 async function eliminar(item){
-
 
 
 const ruta = item.tipo==="venta"
 
-? `https://vivekfe-backend-mxhh.onrender.com/ventas/${item.id}`
+?
 
-: `https://vivekfe-backend-mxhh.onrender.com/gastos/${item.id}`;
+`https://vivekfe-backend-mxhh.onrender.com/ventas/${item.id}`
+
+:
+
+`https://vivekfe-backend-mxhh.onrender.com/gastos/${item.id}`;
 
 
 
@@ -103,47 +94,48 @@ method:"DELETE"
 });
 
 
-
-cargar(fechaBuscar);
+cargar();
 
 
 }
-
-
-
 
 
 
 
 function hoy(){
 
+
 const ahora = new Date();
+
 
 const fecha =
 
-`${String(ahora.getDate()).padStart(2,"0")}/${String(ahora.getMonth()+1).padStart(2,"0")}/${ahora.getFullYear()}`;
+`${ahora.getFullYear()}-${String(ahora.getMonth()+1).padStart(2,"0")}-${String(ahora.getDate()).padStart(2,"0")}`;
+
 
 
 setFechaBuscar(fecha);
 
 cargar(fecha);
 
+
 }
 
 
 
 
+return(
 
-
-return (
-
-
-<div style={{padding:"20px",maxWidth:"700px",margin:"auto"}}>
-
+<div
+style={{
+padding:"20px",
+maxWidth:"700px",
+margin:"auto"
+}}
+>
 
 
 <h1>📖 Historial</h1>
-
 
 
 
@@ -157,19 +149,20 @@ flexWrap:"wrap"
 >
 
 
-
 <input
-type="text"
+
+type="date"
+
 value={fechaBuscar}
+
 onChange={(e)=>setFechaBuscar(e.target.value)}
-placeholder="Ej: 08/08/2026"
+
 style={{
 flex:1,
 padding:"10px"
 }}
+
 />
-
-
 
 
 
@@ -219,7 +212,7 @@ onClick={()=>{
 
 setFechaBuscar("");
 
-cargar();
+cargar("");
 
 }}
 
@@ -238,26 +231,27 @@ borderRadius:"8px"
 </button>
 
 
-
 </div>
 
 
 
 
+{
+datos.length===0 &&
 
-{datos.length===0 && (
+<p>
 
-<p>No hay registros.</p>
+No hay registros.
 
-)}
+</p>
 
-
-
-
+}
 
 
-{datos.map((item)=>(
 
+
+{
+datos.map((item)=>(
 
 
 <div
@@ -265,34 +259,32 @@ borderRadius:"8px"
 key={item.tipo+item.id}
 
 style={{
-
 background:"#fff",
-
 border:"1px solid #ddd",
-
 borderRadius:"10px",
-
 padding:"15px",
-
 marginBottom:"12px"
-
 }}
 
 >
 
 
-
 <h3>
 
-{item.tipo==="venta"
+{
+item.tipo==="venta"
 
-?"💰 Venta"
+?
 
-:"💸 Gasto"}
+"💰 Venta"
+
+:
+
+"💸 Gasto"
+
+}
 
 </h3>
-
-
 
 
 
@@ -300,21 +292,30 @@ marginBottom:"12px"
 
 <strong>
 
-{item.tipo==="venta"
+{
+item.tipo==="venta"
 
-?"Código"
+?
 
-:"Descripción"}
+"Código"
+
+:
+
+"Descripción"
+
+}
 
 </strong>
 
 <br/>
 
-{item.codigo || item.descripcion || "-"}
+{
+
+item.codigo || "-"
+
+}
 
 </p>
-
-
 
 
 
@@ -324,15 +325,14 @@ marginBottom:"12px"
 
 <br/>
 
-${Number(item.valor || 0).toLocaleString("es-CO")}
+${Number(item.valor||0).toLocaleString("es-CO")}
 
 </p>
 
 
 
-
-
-{item.tipo==="venta" && (
+{
+item.tipo==="venta" &&
 
 <p>
 
@@ -340,13 +340,11 @@ ${Number(item.valor || 0).toLocaleString("es-CO")}
 
 <br/>
 
-{item.pago || "-"}
+{item.pago}
 
 </p>
 
-)}
-
-
+}
 
 
 
@@ -363,23 +361,16 @@ ${Number(item.valor || 0).toLocaleString("es-CO")}
 
 
 
-
 <button
 
 onClick={()=>navigate(`/editar/${item.tipo}/${item.id}`)}
 
 style={{
-
 background:"#1976d2",
-
 color:"white",
-
-padding:"10px",
-
 border:"none",
-
+padding:"10px",
 borderRadius:"8px"
-
 }}
 
 >
@@ -395,19 +386,12 @@ borderRadius:"8px"
 onClick={()=>eliminar(item)}
 
 style={{
-
 background:"#d32f2f",
-
 color:"white",
-
-padding:"10px",
-
 border:"none",
-
+padding:"10px",
 borderRadius:"8px",
-
 marginLeft:"10px"
-
 }}
 
 >
@@ -421,8 +405,9 @@ marginLeft:"10px"
 </div>
 
 
+))
 
-))}
+}
 
 
 
