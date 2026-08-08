@@ -172,7 +172,33 @@ app.get("/debug-insert-gasto", async(req,res)=>{
 });
 
 
+// DEBUG LISTAR GASTOS GUARDADOS
 
+app.get("/debug-lista-gastos", async (req,res)=>{
+
+    try{
+
+        const resultado = await db.query(
+            `
+            SELECT *
+            FROM gastos
+            ORDER BY id DESC
+            `
+        );
+
+        res.json(resultado.rows);
+
+    }catch(error){
+
+        console.log("ERROR LISTANDO GASTOS:", error);
+
+        res.status(500).json({
+            error:error.message
+        });
+
+    }
+
+});
 
 // INICIAR SERVIDOR
 
