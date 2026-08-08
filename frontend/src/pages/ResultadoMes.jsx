@@ -33,7 +33,7 @@ async function cargar(){
 
         const respuesta = await fetch(
 
-            `https://vivekfe-backend.onrender.com/estadisticas/mes/${mes}/${anio}`
+            `https://vivekfe-backend-mxhh.onrender.com/estadisticas/mes/${mes}/${anio}`
 
         );
 

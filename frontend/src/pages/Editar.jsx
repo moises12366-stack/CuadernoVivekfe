@@ -16,8 +16,8 @@ export default function Editar() {
 
             const ruta =
                 tipo === "venta"
-                    ? `https://vivekfe-backend.onrender.com/ventas/${id}`
-                    : `https://vivekfe-backend.onrender.com/gastos/${id}`;
+                    ? `https://vivekfe-backend-mxhh.onrender.com/ventas/${id}`
+                    : `https://vivekfe-backend-mxhh.onrender.com/gastos/${id}`;
 
             const respuesta = await fetch(ruta);
 
@@ -46,8 +46,8 @@ export default function Editar() {
 
         const ruta =
             tipo === "venta"
-                ? `https://vivekfe-backend.onrender.com/ventas/${id}`
-                : `https://vivekfe-backend.onrender.com/gastos/${id}`;
+                ? `https://vivekfe-backend-mxhh.onrender.com/ventas/${id}`
+                : `https://vivekfe-backend-mxhh.onrender.com/gastos/${id}`;
 
         const body =
             tipo === "venta"

@@ -40,11 +40,11 @@ async function cargar() {
 
         const [rHoy, rSemana, rDatos] = await Promise.all([
 
-            fetch("https://vivekfe-backend.onrender.com/resumen/hoy"),
+            fetch("https://vivekfe-backend-mxhh.onrender.com/resumen/hoy"),
 
-            fetch("https://vivekfe-backend.onrender.com/resumen/semana"),
+            fetch("https://vivekfe-backend-mxhh.onrender.com/resumen/semana"),
 
-            fetch("https://vivekfe-backend.onrender.com/estadisticas")
+            fetch("https://vivekfe-backend-mxhh.onrender.com/estadisticas")
 
         ]);
 

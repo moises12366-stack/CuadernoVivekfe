@@ -28,7 +28,7 @@ async function cargarResumen(){
 
         const respuesta = await fetch(
 
-            "https://vivekfe-backend.onrender.com/resumen/hoy"
+            "https://vivekfe-backend-mxhh.onrender.com/resumen/hoy"
 
         );
 

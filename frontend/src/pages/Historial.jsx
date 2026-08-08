@@ -23,9 +23,9 @@ try{
 
 const ruta = fecha
 
-? `https://vivekfe-backend.onrender.com/historial/${fecha}`
+? `https://vivekfe-backend-mxhh.onrender.com/historial/${fecha}`
 
-: "https://vivekfe-backend.onrender.com/historial";
+: "https://vivekfe-backend-mxhh.onrender.com/historial";
 
 
 
@@ -86,9 +86,9 @@ async function eliminar(item){
 
 const ruta = item.tipo==="venta"
 
-? `https://vivekfe-backend.onrender.com/ventas/${item.id}`
+? `https://vivekfe-backend-mxhh.onrender.com/ventas/${item.id}`
 
-: `https://vivekfe-backend.onrender.com/gastos/${item.id}`;
+: `https://vivekfe-backend-mxhh.onrender.com/gastos/${item.id}`;
 
 
 
